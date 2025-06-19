@@ -245,6 +245,48 @@ esp_err_t Settings::setHttpTransmitTimeout(uint8_t value) {
                                      : ESP_ERR_INVALID_ARG;
 }
 
+/// Get internal Connection timeout
+///
+/// \return internal Connection timeout [s]
+uint8_t Settings::getHttpConnTimeout() const {
+  return getU8("conn_timeout");
+}
+
+/// Set internal Connection timeout
+///
+/// \param  value                         internal Connection timeout [s]
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+/// \retval ESP_ERR_INVALID_ARG           internal Connection timeout out of range
+esp_err_t Settings::setHttpConnTimeout(uint8_t value) {
+  return value >= 1u && value <= 5u ? setU8("conn_timeout", value)
+                                     : ESP_ERR_INVALID_ARG;
+}
+
+/// Get Website Exit Message 
+///
+/// \return Website Exit Message 
+bool Settings::getHttpExitMessage() const {
+  return static_cast<bool>(getU8("exit_message"));
+}
+
+/// Set Website Exit Message 
+///
+/// \param  value                         Website Exit Message 
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+esp_err_t Settings::setHttpExitMessage(bool value) {
+  return setU8("exit_message", value);
+}
+
 /// Get current limit
 ///
 /// \return Current limit

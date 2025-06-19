@@ -48,6 +48,36 @@ if(ESP_PLATFORM
               COMMAND_ECHO STDOUT COMMAND_ERROR_IS_FATAL ANY)
     set(FRONTEND_WEB_DIR ${Frontend_BINARY_DIR}/web)
 
+  # .. or use local Repo
+  elseif(CMAKE_BUILD_TYPE STREQUAL ReleaseLocal)
+    if(EXISTS "${CMAKE_SOURCE_DIR}/frontend_dir.cmake")
+      include("${CMAKE_SOURCE_DIR}/frontend_dir.cmake")
+    else()
+      message(FATAL_ERROR "'frontend_dir.cmake' not found!")
+    endif()
+    if(NOT IS_DIRECTORY "${FRONTEND_DIR}")
+      message(FATAL_ERROR "'${FRONTEND_DIR}' not found!")
+    endif()
+
+    cpmaddpackage(
+      NAME Frontend
+      SOURCE_DIR "${FRONTEND_DIR}"
+      DOWNLOAD_ONLY TRUE
+    )
+    # message(STATUS "Frontend Source Dir: ${Frontend_SOURCE_DIR}")
+    # message(STATUS "Frontend Binary Dir: ${Frontend_BINARY_DIR}")
+    execute_process(COMMAND rm -rf "${FRONTEND_DIR}/build")
+    execute_process(COMMAND mkdir -p "${FRONTEND_DIR}/build")
+    execute_process(
+      COMMAND ${CMAKE_COMMAND} -B${Frontend_BINARY_DIR}
+      WORKING_DIRECTORY ${Frontend_SOURCE_DIR} COMMAND_ECHO STDOUT
+                        COMMAND_ERROR_IS_FATAL ANY)
+    execute_process(
+      COMMAND ${CMAKE_COMMAND} --build ${Frontend_BINARY_DIR} --target Frontend
+              COMMAND_ECHO STDOUT COMMAND_ERROR_IS_FATAL ANY)
+    set(FRONTEND_WEB_DIR ${Frontend_BINARY_DIR}/web)
+    set(CONFIG_COMPILER_OPTIMIZATION_SIZE "y")
+
     # .. or use pre-built
   elseif(CMAKE_BUILD_TYPE STREQUAL Release)
     cpmaddpackage(

@@ -179,6 +179,8 @@ Response Server::settingsGetRequest(Request const& req) {
   doc["sta_gateway"] = nvs.getStationGateway();
   doc["http_rx_timeout"] = nvs.getHttpReceiveTimeout();
   doc["http_tx_timeout"] = nvs.getHttpTransmitTimeout();
+  doc["conn_timeout"] = nvs.getHttpConnTimeout();
+  doc["exit_message"] = nvs.getHttpExitMessage();
   doc["cur_lim"] = std::to_underlying(nvs.getCurrentLimit());
   doc["cur_lim_serv"] = std::to_underlying(nvs.getCurrentLimitService());
   doc["cur_sc_time"] = nvs.getCurrentShortCircuitTime();
@@ -267,6 +269,14 @@ Response Server::settingsPostRequest(Request const& req) {
   if (JsonVariantConst v{doc["http_tx_timeout"]}; v.is<uint8_t>())
     if (nvs.setHttpTransmitTimeout(v.as<uint8_t>()) != ESP_OK)
       return std::unexpected<std::string>{"422 Unprocessable Entity"};
+
+  if (JsonVariantConst v{doc["conn_timeout"]}; v.is<uint8_t>())
+    if (nvs.setHttpConnTimeout(v.as<uint8_t>()) != ESP_OK)
+      return std::unexpected<std::string>{"422 Unprocessable Entity"};
+
+  if (JsonVariantConst v{doc["exit_message"]}; v.is<bool>())
+    if (nvs.setHttpExitMessage(v.as<bool>()) != ESP_OK)
+      return std::unexpected<std::string>{"422 Unprocessable Entity"}; 
 
   if (JsonVariantConst v{doc["cur_lim"]}; v.is<uint8_t>())
     if (nvs.setCurrentLimit(static_cast<drv::out::track::CurrentLimit>(
@@ -489,10 +499,16 @@ GENERIC_WS_HANDLER(zimoZusiWsHandler, "/zimo/zusi/")
 esp_err_t Server::wildcardGetHandler(httpd_req_t* req) {
   LOGD("GET request %s", req->uri);
 
+  mem::nvs::Settings nvs;
+  const char* redirectPath = nvs.getHttpExitMessage()
+                                        ? "/index.html"
+                                        : "/index_.html";
+
   // 308 / to index.html
-  if (std::string_view const uri{req->uri}; uri == "/"sv) {
+  std::string_view const uri{req->uri};
+  if ((uri == "/"sv || uri == "/index.html"sv || uri == "/index_.html"sv ) && uri != redirectPath) {
     httpd_resp_set_status(req, "308 Permanent Redirect");
-    httpd_resp_set_hdr(req, "Location", "/index.html");
+    httpd_resp_set_hdr(req, "Location", redirectPath);
     httpd_resp_send(req, NULL, 0);
     return ESP_OK;
   }

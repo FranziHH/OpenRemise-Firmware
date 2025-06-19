@@ -68,6 +68,12 @@ public:
   uint8_t getHttpTransmitTimeout() const;
   esp_err_t setHttpTransmitTimeout(uint8_t value);
 
+  uint8_t getHttpConnTimeout() const;
+  esp_err_t setHttpConnTimeout(uint8_t value);
+
+  bool getHttpExitMessage() const;
+  esp_err_t setHttpExitMessage(bool value);
+
   drv::out::track::CurrentLimit getCurrentLimit() const;
   esp_err_t setCurrentLimit(drv::out::track::CurrentLimit value);
 

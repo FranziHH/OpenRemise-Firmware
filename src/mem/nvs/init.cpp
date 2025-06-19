@@ -65,6 +65,10 @@ esp_err_t init() {
       nvs.setHttpReceiveTimeout(5u);
     if (nvs.find("http_tx_timeout") == ESP_ERR_NVS_NOT_FOUND)
       nvs.setHttpTransmitTimeout(5u);
+    if (nvs.find("conn_timeout") == ESP_ERR_NVS_NOT_FOUND)
+      nvs.setHttpConnTimeout(2u);
+    if (nvs.find("exit_message") == ESP_ERR_NVS_NOT_FOUND)
+      nvs.setHttpExitMessage(true);
     if (nvs.find("cur_lim") == ESP_ERR_NVS_NOT_FOUND)
       nvs.setCurrentLimit(drv::out::track::CurrentLimit::_4100mA);
     if (nvs.find("cur_lim_serv") == ESP_ERR_NVS_NOT_FOUND)

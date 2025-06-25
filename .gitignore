@@ -3,4 +3,8 @@ managed_components
 dependencies.lock
 sdkconfig
 sdkconfig.old
-.bash_aliases
+*copy*
+.github/workflows/
+ftp_credentials.cmake
+frontend_dir.cmake
+*_CMakeLists.txt

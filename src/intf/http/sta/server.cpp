@@ -32,6 +32,7 @@
 #include "log.h"
 #include "mem/nvs/settings.hpp"
 #include "utility.hpp"
+#include "esp_http_server.h"
 
 namespace intf::http::sta {
 
@@ -490,14 +491,45 @@ GENERIC_WS_HANDLER(zimoMduZppWsHandler, "/zimo/mdu/zpp/")
 GENERIC_WS_HANDLER(zimoMduZsuWsHandler, "/zimo/mdu/zsu/")
 GENERIC_WS_HANDLER(zimoZusiWsHandler, "/zimo/zusi/")
 
+#ifndef httpd_resp_sendfile
+static esp_err_t httpd_resp_sendfile(httpd_req_t* req, const char* path) {
+    FILE* f = fopen(path, "r");
+    if (!f) return ESP_FAIL;
+
+    fseek(f, 0, SEEK_END);
+    long len = ftell(f);
+    rewind(f);
+
+    char* buf = (char*) malloc(len + 1);
+    if (!buf) {
+        fclose(f);
+        return ESP_ERR_NO_MEM;
+    }
+
+    fread(buf, 1, len, f);
+    fclose(f);
+    buf[len] = '\0';
+
+    esp_err_t res = httpd_resp_send(req, buf, len);
+    free(buf);
+    return res;
+}
+#endif
+
 /// \todo document
 esp_err_t Server::wildcardGetHandler(httpd_req_t* req) {
   LOGD("GET request %s", req->uri);
 
+  mem::nvs::Settings nvs;
+  const char* redirectPath = nvs.getHttpExitMessage()
+                                        ? "/index.html"
+                                        : "/index.htm";
+
   // 308 / to index.html
-  if (std::string_view const uri{req->uri}; uri == "/"sv) {
+  std::string_view const uri{req->uri};
+  if ((uri == "/"sv || uri == "/index.html"sv || uri == "/index.htm"sv) && uri != redirectPath) {
     httpd_resp_set_status(req, "308 Permanent Redirect");
-    httpd_resp_set_hdr(req, "Location", "/index.html");
+    httpd_resp_set_hdr(req, "Location", redirectPath);
     httpd_resp_send(req, NULL, 0);
     return ESP_OK;
   }

@@ -1,0 +1,4 @@
+set(FILE_POSTFIX "")
+set(FTP_USER "")
+set(FTP_PASSWORD "")
+set(FTP_SERVER_PATH "")

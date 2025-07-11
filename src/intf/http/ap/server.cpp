@@ -1,4 +1,5 @@
 // Copyright (C) 2025 Vincent Hamp
+// Copyright (C) 2025 Franziska Walter
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -38,7 +39,7 @@ namespace intf::http::ap {
 
 /// Ctor
 Server::Server() {
-  LOGW("Server", "Constructor called: this=%p", this);
+  LOGW("Server: Constructor called: this=%p", this);
   _ap_records_str.reserve(1024uz);
   _ap_options_str.reserve(1024uz);
   _get_str.reserve(2048uz);
@@ -52,13 +53,34 @@ Server::Server() {
   config.lru_purge_enable = true;
   config.keep_alive_enable = true;
   config.uri_match_fn = httpd_uri_match_wildcard;
+  config.max_uri_handlers = 16;
   ESP_ERROR_CHECK(httpd_start(&handle, &config));
 
-  //
-  httpd_uri_t uri{.uri = "/*",
-                  .method = HTTP_GET,
-                  .handler =
-                    ztl::make_trampoline(this, &Server::wildcardGetHandler)};
+  httpd_uri_t uri{};
+  // -------------- redirect uris -------------- //
+  // adjust config.max_uri_handlers above !
+  static const char* redirect_uris[] = {
+    "/generate_204",          // Android Trigger
+    "/hotspot-detect.html",   // Apple/macOS Trigger
+    "/redirect",              // Windows & Co.
+    "/connecttest.txt",
+    "/canonical.html",
+    "/success.txt",
+    "/ncsi.txt"
+  };
+
+  for (auto const& uri_path : redirect_uris) {
+    uri = {.uri = uri_path,
+           .method = HTTP_GET,
+           .handler = ztl::make_trampoline(this, &Server::redirectHandler)};
+    ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &uri));
+  }
+  // -------------- redirect uris -------------- //
+
+  // Wildcard as last!
+  uri = {.uri = "/*",
+         .method = HTTP_GET,
+         .handler = ztl::make_trampoline(this, &Server::wildcardGetHandler)};
   ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &uri));
 
   //
@@ -172,7 +194,16 @@ void Server::setConfig() const {
 
 /// \todo document
 esp_err_t Server::wildcardGetHandler(httpd_req_t* req) {
-  LOGW("GET request %s", req->uri);
+  LOGW("[wildcard] GET request %s", req->uri);
+
+  buildGetString();
+  httpd_resp_send(req, data(_get_str), ssize(_get_str));
+  return ESP_OK;
+}
+
+/// \todo document
+esp_err_t Server::redirectHandler(httpd_req_t* req) {
+  LOGW("[redirect] GET request %s", req->uri);
 
   buildGetString();
   httpd_resp_send(req, data(_get_str), ssize(_get_str));

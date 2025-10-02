@@ -76,7 +76,7 @@ esp_err_t init() {
     .external_phy = false,
     .configuration_descriptor = NULL,
     /// \bug Currently can cause issues on Windows 11
-    /// https://github.com/OpenRemise/Firmware/issues/47
+    /// https://github.com/espressif/esp-idf/issues/14638
     //.self_powered = true,
     //.vbus_monitor_io = vbus_gpio_num
   };

@@ -21,8 +21,16 @@
 
 #pragma once
 
+#include "freertos/queue.h"
+
 namespace drv::led {
 
-void wifi(bool on);
+    class wifi {
+        public:
+            static void on();
+            static void off();
+            static void blink(int on = 500, int off = 250);
+            static void init();  // Nur einmal beim Start aufrufen
+    };
 
 } // namespace drv::led

@@ -8,10 +8,6 @@ FetchContent_Declare(
   GIT_TAG v0.12.1)
 FetchContent_MakeAvailable(CMakeModules)
 
-set(OPENREMISE_FRONTEND_SOURCE_DIR
-    ""
-    CACHE STRING "Overrides the frontend source code directory")
-
 list(
   APPEND
   EXTRA_COMPONENT_DIRS
@@ -37,24 +33,17 @@ if(ESP_PLATFORM
    AND NOT IDF_TARGET STREQUAL linux
    AND NOT EXISTS ${Frontend_BINARY_DIR})
 
-  # Build from local repo or devel branch at config time
-  if(NOT ${OPENREMISE_FRONTEND_SOURCE_DIR} STREQUAL "" OR CMAKE_BUILD_TYPE
-                                                          STREQUAL Debug)
-    if(OPENREMISE_FRONTEND_SOURCE_DIR)
-      cpmaddpackage(NAME Frontend SOURCE_DIR ${OPENREMISE_FRONTEND_SOURCE_DIR}
-                    DOWNLOAD_ONLY TRUE)
-    else()
-      cpmaddpackage(
-        NAME
-        Frontend
-        GITHUB_REPOSITORY
-        "OpenRemise/Frontend"
-        GIT_TAG
-        devel
-        DOWNLOAD_ONLY
-        TRUE)
-    endif()
-
+  # Build from devel branch at config time
+  if(CMAKE_BUILD_TYPE STREQUAL Debug)
+    cpmaddpackage(
+      NAME
+      Frontend
+      GITHUB_REPOSITORY
+      "OpenRemise/Frontend"
+      GIT_TAG
+      turnouts
+      DOWNLOAD_ONLY
+      TRUE)
     execute_process(
       COMMAND ${CMAKE_COMMAND} -B${Frontend_BINARY_DIR}
       WORKING_DIRECTORY ${Frontend_SOURCE_DIR} COMMAND_ECHO STDOUT
@@ -64,7 +53,37 @@ if(ESP_PLATFORM
               COMMAND_ECHO STDOUT COMMAND_ERROR_IS_FATAL ANY)
     set(FRONTEND_WEB_DIR ${Frontend_BINARY_DIR}/web)
 
-    # ... or use pre-built official release
+  # .. or use local Repo
+  elseif(CMAKE_BUILD_TYPE STREQUAL ReleaseTEST)
+    if(EXISTS "${CMAKE_SOURCE_DIR}/frontend_dir.cmake")
+      include("${CMAKE_SOURCE_DIR}/frontend_dir.cmake")
+    else()
+      message(FATAL_ERROR "'frontend_dir.cmake' not found!")
+    endif()
+    if(NOT IS_DIRECTORY "${FRONTEND_DIR}")
+      message(FATAL_ERROR "'${FRONTEND_DIR}' not found!")
+    endif()
+
+    cpmaddpackage(
+      NAME Frontend
+      SOURCE_DIR "${FRONTEND_DIR}"
+      DOWNLOAD_ONLY TRUE
+    )
+    # message(STATUS "Frontend Source Dir: ${Frontend_SOURCE_DIR}")
+    # message(STATUS "Frontend Binary Dir: ${Frontend_BINARY_DIR}")
+    execute_process(COMMAND rm -rf "${FRONTEND_DIR}/build")
+    execute_process(COMMAND mkdir -p "${FRONTEND_DIR}/build")
+    execute_process(
+      COMMAND ${CMAKE_COMMAND} -B${Frontend_BINARY_DIR}
+      WORKING_DIRECTORY ${Frontend_SOURCE_DIR} COMMAND_ECHO STDOUT
+                        COMMAND_ERROR_IS_FATAL ANY)
+    execute_process(
+      COMMAND ${CMAKE_COMMAND} --build ${Frontend_BINARY_DIR} --target Frontend
+              COMMAND_ECHO STDOUT COMMAND_ERROR_IS_FATAL ANY)
+    set(FRONTEND_WEB_DIR ${Frontend_BINARY_DIR}/web)
+    set(CONFIG_COMPILER_OPTIMIZATION_SIZE "y")
+
+  # .. or use pre-built
   elseif(CMAKE_BUILD_TYPE STREQUAL Release)
     cpmaddpackage(
       NAME
@@ -75,7 +94,10 @@ if(ESP_PLATFORM
       ${OPENREMISE_FRONTENVERSION_FROM_GITD_VERSION}
       DOWNLOAD_ONLY
       ON)
+    # message(STATUS "Frontend Source Dir: ${Frontend_SOURCE_DIR}")
+    # message(STATUS "Frontend Binary Dir: ${Frontend_BINARY_DIR}")
     set(FRONTEND_WEB_DIR ${Frontend_SOURCE_DIR})
+    set(CONFIG_COMPILER_OPTIMIZATION_SIZE "y")
   endif()
 
   if(NOT EXISTS ${FRONTEND_WEB_DIR})
@@ -128,23 +150,114 @@ if(ESP_PLATFORM
   file(APPEND ${HEADER} "};\n")
 endif()
 
+# message(STATUS "ESP_PLATFORM: ${ESP_PLATFORM}")
+# message(STATUS "IDF_TARGET: ${IDF_TARGET}")
+# message(STATUS "CONFIG_COMPILER_OPTIMIZATION_SIZE: ${CONFIG_COMPILER_OPTIMIZATION_SIZE}")
+
 # Custom release target to create .zip
 if(ESP_PLATFORM
    AND NOT IDF_TARGET STREQUAL linux
-   AND CONFIG_COMPILER_OPTIMIZATION_SIZE)
-  add_custom_target(
-    FirmwareRelease
-    COMMAND
-      ${CMAKE_COMMAND} -E tar "cf" ${PROJECT_NAME}-${PROJECT_VERSION}.zip
-      --format=zip #
-      flasher_args.json #
-      bootloader/bootloader.bin #
-      Firmware.bin #
-      partition_table/partition-table.bin #
-      ota_data_initial.bin #
-      nvs.bin #
-    DEPENDS all
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+   AND CONFIG_COMPILER_OPTIMIZATION_SIZE
+   )
+
+  if(EXISTS "${CMAKE_SOURCE_DIR}/ftp_credentials.cmake")
+    include("${CMAKE_SOURCE_DIR}/ftp_credentials.cmake")
+    set(FTP_DATA TRUE)
+  else()
+    set(FILE_POSTFIX "??")
+    set(FTP_DATA FALSE)
+  endif()
+
+  execute_process(
+    COMMAND date "+%Y-%m-%d_%H-%M"
+    OUTPUT_VARIABLE BUILD_TIMESTAMP
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+  # message(STATUS "Timestamp ${BUILD_TIMESTAMP}")
+
+  if(${FTP_DATA})
+    # define DEST_DIR in frontend_dir.cmake
+    set(FW_DIR "${DEST_DIR}/firmware/v${PROJECT_VERSION}")
+    message(STATUS "Firmware Dir: ${FW_DIR}")
+
+    add_custom_target(
+      FirmwareRelease
+      
+      COMMAND
+        ${CMAKE_COMMAND} -E tar "cf" ${BUILD_TIMESTAMP}_${PROJECT_NAME}_${PROJECT_VERSION}.zip
+        --format=zip #
+        flasher_args.json #
+        bootloader/bootloader.bin #
+        Firmware.bin #
+        partition_table/partition-table.bin #
+        ota_data_initial.bin #
+        nvs.bin #
+      
+      COMMAND ${CMAKE_COMMAND} -E make_directory "${FW_DIR}/partition_table"
+      COMMAND ${CMAKE_COMMAND} -E make_directory "${FW_DIR}/bootloader"
+      COMMAND ${CMAKE_COMMAND} -E copy "flasher_args.json" "${FW_DIR}/"
+      COMMAND ${CMAKE_COMMAND} -E copy "Firmware.bin" "${FW_DIR}/"
+      COMMAND ${CMAKE_COMMAND} -E copy "ota_data_initial.bin" "${FW_DIR}/"
+      COMMAND ${CMAKE_COMMAND} -E copy "nvs.bin" "${FW_DIR}/"
+      COMMAND ${CMAKE_COMMAND} -E copy "bootloader/bootloader.bin" "${FW_DIR}/bootloader/"
+      COMMAND ${CMAKE_COMMAND} -E copy "partition_table/partition-table.bin" "${FW_DIR}/partition_table/"
+
+      COMMAND ftp -u ftp://${FTP_USER}:${FTP_PASSWORD}@${FTP_SERVER_PATH}${BUILD_TIMESTAMP}_${PROJECT_NAME}_${PROJECT_VERSION}.zip ${BUILD_TIMESTAMP}_${PROJECT_NAME}_${PROJECT_VERSION}.zip
+
+      WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+      DEPENDS all
+    )
+
+    add_custom_target(
+      FirmwareReleaseTEST
+      
+      COMMAND
+        ${CMAKE_COMMAND} -E tar "cf" ${BUILD_TIMESTAMP}_${PROJECT_NAME}_${PROJECT_VERSION}_${FILE_POSTFIX}.zip
+        --format=zip #
+        flasher_args.json #
+        bootloader/bootloader.bin #
+        Firmware.bin #
+        partition_table/partition-table.bin #
+        ota_data_initial.bin #
+        nvs.bin #
+      COMMAND ftp -u ftp://${FTP_USER}:${FTP_PASSWORD}@${FTP_SERVER_PATH}${BUILD_TIMESTAMP}_${PROJECT_NAME}_${PROJECT_VERSION}_${FILE_POSTFIX}.zip ${BUILD_TIMESTAMP}_${PROJECT_NAME}_${PROJECT_VERSION}_${FILE_POSTFIX}.zip
+      DEPENDS all
+      WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+
+  else()
+
+    add_custom_target(
+      FirmwareRelease
+      
+      COMMAND
+        ${CMAKE_COMMAND} -E tar "cf" ${BUILD_TIMESTAMP}_${PROJECT_NAME}_${PROJECT_VERSION}.zip
+        --format=zip #
+        flasher_args.json #
+        bootloader/bootloader.bin #
+        Firmware.bin #
+        partition_table/partition-table.bin #
+        ota_data_initial.bin #
+        nvs.bin #
+      DEPENDS all
+      WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+
+    add_custom_target(
+      FirmwareReleaseTEST
+      
+      COMMAND
+        ${CMAKE_COMMAND} -E tar "cf" ${BUILD_TIMESTAMP}_${PROJECT_NAME}_${PROJECT_VERSION}_${FILE_POSTFIX}.zip
+        --format=zip #
+        flasher_args.json #
+        bootloader/bootloader.bin #
+        Firmware.bin #
+        partition_table/partition-table.bin #
+        ota_data_initial.bin #
+        nvs.bin #
+      DEPENDS all
+      WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+
+  endif()
+
 endif()
 
 add_subdirectory(docs)

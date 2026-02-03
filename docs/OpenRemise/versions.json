@@ -1,0 +1,78 @@
+{
+  "openremise": {
+    "full": [
+      {
+        "id": "v0.6.1/Firmware_Full.bin",
+        "name": "2026-01-25 v0.6.1",
+        "offset": "0x0"
+      },
+      {
+        "id": "v0.6.0/Firmware_Full.bin",
+        "name": "2025-11-22 v0.6.0",
+        "offset": "0x0"
+      },
+      {
+        "id": "v0.5.2/Firmware_Full.bin",
+        "name": "2025-11-11 v0.5.2",
+        "offset": "0x0"
+      },
+      {
+        "id": "v0.5.1/Firmware_Full.bin",
+        "name": "2025-10-18 v0.5.1",
+        "offset": "0x0"
+      },
+      {
+        "id": "v0.5.0/Firmware_Full.bin",
+        "name": "2025-10-04 v0.5.0",
+        "offset": "0x0"
+      },
+      {
+        "id": "v0.4.1/Firmware_Full.bin",
+        "name": "2025-07-18 v0.4.1",
+        "offset": "0x0"
+      },
+      {
+        "id": "v0.4.0/Firmware_Full.bin",
+        "name": "2025-06-21 v0.4.0",
+        "offset": "0x0"
+      }
+    ],
+    "update": [
+      {
+        "id": "v0.6.1/Firmware.bin",
+        "name": "2026-01-25 v0.6.1",
+        "offset": "0x10000"
+      },
+      {
+        "id": "v0.6.0/Firmware.bin",
+        "name": "2025-11-22 v0.6.0",
+        "offset": "0x10000"
+      },
+      {
+        "id": "v0.5.2/Firmware.bin",
+        "name": "2025-11-11 v0.5.2",
+        "offset": "0x10000"
+      },
+      {
+        "id": "v0.5.1/Firmware.bin",
+        "name": "2025-10-18 v0.5.1",
+        "offset": "0x10000"
+      },
+      {
+        "id": "v0.5.0/Firmware.bin",
+        "name": "2025-10-04 v0.5.0",
+        "offset": "0x10000"
+      },
+      {
+        "id": "v0.4.1/Firmware.bin",
+        "name": "2025-07-18 v0.4.1",
+        "offset": "0x10000"
+      },
+      {
+        "id": "v0.4.0/Firmware.bin",
+        "name": "2025-06-21 v0.4.0",
+        "offset": "0x10000"
+      }
+    ]
+  }
+}

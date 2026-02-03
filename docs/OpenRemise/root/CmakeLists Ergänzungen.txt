@@ -1,0 +1,52 @@
+
+# from file frontend_dir.cmake
+# Definiere die realen Verzeichnisse, auf der Build Maschine
+set(USER_HOME_DIR "$ENV{HOME}")
+
+# Das "root" Verzeicnis des Flashers
+set(DEST_DIR "${USER_HOME_DIR}/OpenRemiseFork/Firmware/docs/flasher")
+
+
+    # define DEST_DIR in frontend_dir.cmake
+    set(FW_DIR "${DEST_DIR}/firmware/v${PROJECT_VERSION}")
+    message(STATUS "Firmware Dir: ${FW_DIR}")
+    
+    add_custom_target(
+      FirmwareRelease
+      
+      COMMAND
+        ${CMAKE_COMMAND} -E tar "cf" ${BUILD_TIMESTAMP}_${PROJECT_NAME}_${PROJECT_VERSION}.zip
+        --format=zip #
+        flasher_args.json #
+        bootloader/bootloader.bin #
+        Firmware.bin #
+        partition_table/partition-table.bin #
+        ota_data_initial.bin #
+        nvs.bin #
+      
+      COMMAND ${CMAKE_COMMAND} -E make_directory "${FW_DIR}/partition_table"
+      COMMAND ${CMAKE_COMMAND} -E make_directory "${FW_DIR}/bootloader"
+      COMMAND ${CMAKE_COMMAND} -E copy "flasher_args.json" "${FW_DIR}/"
+      COMMAND ${CMAKE_COMMAND} -E copy "Firmware.bin" "${FW_DIR}/"
+      COMMAND ${CMAKE_COMMAND} -E copy "ota_data_initial.bin" "${FW_DIR}/"
+      COMMAND ${CMAKE_COMMAND} -E copy "nvs.bin" "${FW_DIR}/"
+      COMMAND ${CMAKE_COMMAND} -E copy "bootloader/bootloader.bin" "${FW_DIR}/bootloader/"
+      COMMAND ${CMAKE_COMMAND} -E copy "partition_table/partition-table.bin" "${FW_DIR}/partition_table/"
+
+      #COMMAND ${python} ${ESPTOOL_PY} --chip esp32s3 merge_bin
+      #  -o "${FW_DIR}/Firmware_Full.bin"
+      #  --flash_mode dout
+      #  --flash_freq 80m
+      #  --flash_size 32MB
+      #  "0x0" "${FW_DIR}/bootloader/bootloader.bin"
+      #  "0x8000" "${FW_DIR}/partition_table/partition-table.bin"
+      #  "0x9000" "${FW_DIR}/ota_data_initial.bin"
+      #  "0x10000" "${FW_DIR}/Firmware.bin"
+      #  "0xc10000" "${FW_DIR}/nvs.bin"
+
+      # Make full image and add to json
+      COMMAND ${python} "${CMAKE_CURRENT_SOURCE_DIR}/cmake.py" "${DEST_DIR}" "${FW_DIR}" "${PROJECT_VERSION}" " "
+      
+      WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+      DEPENDS all
+    )

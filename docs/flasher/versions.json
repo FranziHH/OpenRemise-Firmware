@@ -1,0 +1,88 @@
+{
+  "openremise": {
+    "full": [
+      {
+        "id": "v0.6.1FW/Firmware_Full.bin",
+        "name": "2026-02-03 v0.6.1 FW",
+        "offset": "0x0"
+      },
+      {
+        "id": "v0.6.1/Firmware_Full.bin",
+        "name": "2026-02-03 v0.6.1",
+        "offset": "0x0"
+      },
+      {
+        "id": "v0.6.0FW/Firmware_Full.bin",
+        "name": "2026-01-24 v0.6.0 FW",
+        "offset": "0x0"
+      },
+      {
+        "id": "v0.6.0/Firmware_Full.bin",
+        "name": "2026-01-24 v0.6.0",
+        "offset": "0x0"
+      },
+      {
+        "id": "v0.5.2FW/Firmware_Full.bin",
+        "name": "2025-11-16 v0.5.2 FW",
+        "offset": "0x0"
+      },
+      {
+        "id": "v0.5.2/Firmware_Full.bin",
+        "name": "2025-11-16 v0.5.2",
+        "offset": "0x0"
+      },
+      {
+        "id": "v0.5.1FW/Firmware_Full.bin",
+        "name": "2025-10-25 v0.5.1 FW",
+        "offset": "0x0"
+      },
+      {
+        "id": "v0.5.1/Firmware_Full.bin",
+        "name": "2025-10-25 v0.5.1",
+        "offset": "0x0"
+      }
+    ],
+    "update": [
+      {
+        "id": "v0.6.1FW/Firmware.bin",
+        "name": "2026-02-03 v0.6.1 FW",
+        "offset": "0x10000"
+      },
+      {
+        "id": "v0.6.1/Firmware.bin",
+        "name": "2026-02-03 v0.6.1",
+        "offset": "0x10000"
+      },
+      {
+        "id": "v0.6.0FW/Firmware.bin",
+        "name": "2026-01-24 v0.6.0 FW",
+        "offset": "0x10000"
+      },
+      {
+        "id": "v0.6.0/Firmware.bin",
+        "name": "2026-01-24 v0.6.0",
+        "offset": "0x10000"
+      },
+      {
+        "id": "v0.5.2FW/Firmware.bin",
+        "name": "2025-11-16 v0.5.2 FW",
+        "offset": "0x10000"
+      },
+      {
+        "id": "v0.5.2/Firmware.bin",
+        "name": "2025-11-16 v0.5.2",
+        "offset": "0x10000"
+      },
+      {
+        "id": "v0.5.1FW/Firmware.bin",
+        "name": "2025-10-25 v0.5.1 FW",
+        "offset": "0x10000"
+      },
+      {
+        "id": "v0.5.1/Firmware.bin",
+        "name": "2025-10-25 v0.5.1",
+        "offset": "0x10000"
+      }
+    ]
+  }
+}

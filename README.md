@@ -1,6 +1,6 @@
 # Online FlashTool
 
-[OpenRemise Firmware Tool](https://franzihh.github.io/OpenRemise-Firmware)
+[OpenRemise Firmware Tool](https://franzihh.github.io/OpenRemise-Firmware/flasher)
 
 # Firmware
 

@@ -123,10 +123,7 @@
       </div>
 
       <div id="status-text" class="info">
-        FW: Firmware with own changes<br />
-        <a href="https://franzi.hamburg/OpenRemise/" target="_blank"
-          >Download Firmware</a
-        >
+        After successful flashing, press RESET again.
       </div>
 
       <esp-web-install-button id="install-button"></esp-web-install-button>
@@ -163,6 +160,7 @@
             statusUnavailable:
               "⚠️ Für diese Auswahl ist keine Version verfügbar.",
             info: "<b>Boot-Modus:</b><br>1. <b>BOOT</b> halten,<br>2. <b>RST</b> drücken,<br>3. <b>BOOT</b> loslassen.",
+            statusText: "Nach dem erfolgreichen Flashen nochmal RESET Drücken.",
           },
           en: {
             title:
@@ -177,6 +175,7 @@
             statusReady: "Ready: {action}. Connect the stick via USB.",
             statusUnavailable: "⚠️ No version available for this selection.",
             info: "<b>Boot Mode:</b><br>1. Hold <b>BOOT</b>,<br>2. Press <b>RST</b>,<br>3. Release <b>BOOT</b>.",
+            statusText: "After successful flashing, press RESET again.",
           },
         };
 
@@ -192,6 +191,7 @@
           document.getElementById("ui-opt-update").textContent = t.optUpdate;
           document.getElementById("ui-opt-version").textContent = t.optVersion;
           document.getElementById("ui-info").innerHTML = t.info;
+          document.getElementById("status-text").innerHTML = t.statusText;
         }
 
         async function loadVersions() {

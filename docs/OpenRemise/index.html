@@ -285,13 +285,15 @@
           } else {
             // NEUINSTALLATION:
             // Dialog erscheint, Benutzer wird gefragt (kann aber noch löschen wählen)
+            /*
             eraseConfig = {
               new_install_prompt_erase: true,
             };
+            */
           }
 
           const url = new URL(window.location.href);
-          const pathBase = `${window.location.origin}${url.pathname}${CONFIG.basePath}`;
+          const pathBase = `${window.location.origin}${url.pathname.replace(/[^/]+$/, "")}${CONFIG.basePath}`;
 
           // 1. Nur den Dateinamen für die Anzeige extrahieren
           // const fileName = version.split('/').pop();

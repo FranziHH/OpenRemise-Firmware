@@ -3,7 +3,7 @@
     "full": [
       {
         "id": "v0.6.1FW/Firmware_Full.bin",
-        "name": "2026-02-07 v0.6.1 FW",
+        "name": "2026-02-09 v0.6.1 FW",
         "offset": "0x0"
       },
       {
@@ -45,7 +45,7 @@
     "update": [
       {
         "id": "v0.6.1FW/Firmware.bin",
-        "name": "2026-02-07 v0.6.1 FW",
+        "name": "2026-02-09 v0.6.1 FW",
         "offset": "0x10000"
       },
       {

@@ -135,15 +135,13 @@
     </div>
 
     <script>
+      // HIER IST DER BROWSERCHECK: Prüft ob 'serial' überhaupt existiert
+      const isSerialSupported = "serial" in navigator;
+
+      // Check für Mobilgeräte
+      const isMobile = navigator.maxTouchPoints > 0 || Android|iP(hone|ad|od)/i.test(navigator.userAgent);
+
       (function () {
-        // HIER IST DER BROWSERCHECK: Prüft ob 'serial' überhaupt existiert
-        const isSerialSupported = "serial" in navigator;
-
-        // Check für Mobilgeräte
-        const isMobile =
-          navigator.maxTouchPoints > 0 ||
-          /Android|iP(hone|ad|od)/i.test(navigator.userAgent);
-
         const userLang = navigator.language.startsWith("de") ? "de" : "en";
         const msg = {
           de: {
@@ -256,11 +254,7 @@
           versions = await res.json();
           console.log("versions.json geladen:", versions);
 
-          const supportsWebSerial = "serial" in navigator;
-          const isMobile = /Android|iPhone|iPad|iPod/i.test(
-            navigator.userAgent,
-          );
-          if (!supportsWebSerial || isMobile) {
+          if (!isSerialSupported || isMobile) {
             installButton.style.color = "red";
             installButton.style.display = "block";
             statusText.style.display = "none";
@@ -375,13 +369,16 @@
           // Zuweisung an den Button
           button.manifest = currentManifestUrl;
           // button.style.display = "block";
+
+          if (versionSelect.selectedIndex === 0) {
+              document.getElementById("my-button").style.display = "none";
+          } else {
+              document.getElementById("my-button").style.display = "block";
+          }
         }
 
         actionSelect.addEventListener("change", () => {
-          const isMobile = /Android|iPhone|iPad|iPod/i.test(
-            navigator.userAgent,
-          );
-          if (!supportsWebSerial || isMobile) return;
+          if (!isSerialSupported || isMobile) return;
           updateVersionList();
           updateManifest();
         });

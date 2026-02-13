@@ -166,9 +166,11 @@
           if (isMobile) {
             el.innerHTML = lang.m;
             el.style.display = "block";
+            document.getElementById("status-text").style.display = "none";
           } else if (!isSerialSupported) {
             el.innerHTML = lang.b;
             el.style.display = "block";
+            document.getElementById("status-text").style.display = "none";
           } else {
             document.getElementById("my-error").style.display = "none";
             document.getElementById("my-button").style.display = "block";

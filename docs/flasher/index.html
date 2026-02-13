@@ -107,7 +107,7 @@
 
       <div class="input-group">
         <label id="ui-label-action" for="action-select">Aktion:</label>
-        <select id="action-select">
+        <select id="action-select" disabled>
           <option value="full" id="ui-opt-full">Full Flash</option>
           <option value="update" id="ui-opt-update">Update</option>
         </select>
@@ -129,10 +129,56 @@
         >
       </div>
 
-      <esp-web-install-button id="install-button"></esp-web-install-button>
+      <div id="my-button" style="display:none">
+          <esp-web-install-button id="install-button"></esp-web-install-button>
+      </div>
+      <div id="my-error">
+          <span id="error-msg"></span>
+      </div>
     </div>
 
     <script>
+        // HIER IST DER BROWSERCHECK: Prüft ob 'serial' überhaupt existiert
+        const isSerialSupported = "serial" in navigator;
+
+        // Check für Mobilgeräte
+        const isMobile = (navigator.maxTouchPoints > 0 || /Android|iP(hone|ad|od)/i.test(navigator.userAgent));
+
+        (function () {
+            const userLang = navigator.language.startsWith('de') ? 'de' : 'en';
+            const msg = {
+                de: {
+                    m: "⚠️ <strong>Mobilgerät erkannt:</strong> Das Flashen über USB funktioniert leider nur an einem Computer (PC/Mac/Laptop).",
+                    b: "⚠️ <strong>Browser nicht kompatibel:</strong> Bitte nutze Google Chrome oder Microsoft Edge, um dieses Gerät zu programmieren."
+                },
+                en: {
+                    m: "⚠️ <strong>Mobile device detected:</strong> Flashing via USB only works on a computer (PC, Mac, or Laptop).",
+                    b: "⚠️ <strong>Browser not compatible:</strong> Please use Google Chrome or Microsoft Edge to program this device."
+                }
+            };
+
+            const lang = msg[userLang];
+            const el = document.getElementById("error-msg");
+
+            if (el) {
+                // LOGIK: 
+                // 1. Wenn Mobilgerät -> Mobil-Text
+                // 2. Wenn PC aber KEIN Serial (Firefox/Safari) -> Browser-Text
+                if (isMobile) {
+                    el.innerHTML = lang.m;
+                    el.style.display = "block";
+                } else if (!isSerialSupported) {
+                    el.innerHTML = lang.b;
+                    el.style.display = "block";
+                } else {
+                    document.getElementById("my-error").style.display = "none";
+                    document.getElementById("my-button").style.display = "block";
+                    document.getElementById("hw-select").disabled = false;
+                }
+                el.style.color = "red";
+            }
+        })();
+
       (async () => {
         const actionSelect = document.getElementById("action-select");
         const versionSelect = document.getElementById("version-select");
@@ -323,16 +369,23 @@
           // Zuweisung an den Button
           button.manifest = currentManifestUrl;
           // button.style.display = "block";
+
+
+          if (versionSelect.selectedIndex === 0) {
+              document.getElementById("my-button").style.display = "none";
+          } else {
+              document.getElementById("my-button").style.display = "block";
+          }
         }
 
         actionSelect.addEventListener("change", () => {
-          const supportsWebSerial = "serial" in navigator;
-          if (!supportsWebSerial) return;
+          if (!isSerialSupported || isMobile) return;
           updateVersionList();
           updateManifest();
         });
 
         versionSelect.addEventListener("change", () => {
+          if (!isSerialSupported || isMobile) return;
           updateVersionAvailability();
           updateManifest();
         });

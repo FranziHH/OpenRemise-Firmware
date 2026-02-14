@@ -48,14 +48,14 @@ void event_handler(void*,
     auto const count{
       snprintf(data(ip), size(ip), IPSTR, IP2STR(&event->ip_info.ip))};
     ip_str.replace(0uz, count, data(ip));
-    led::wifi(true);
+    led::wifi::on();
     LOGI("IP_EVENT_ETH_GOT_IP %s", ip_str.c_str());
   }
   // Ethernet lost IP and the IP is reset to
   else if (event_base == IP_EVENT && event_id == IP_EVENT_ETH_LOST_IP) {
     ip.fill(0);
     ip_str.clear();
-    led::wifi(false);
+    led::wifi::off();
     LOGI("IP_EVENT_ETH_LOST_IP");
   }
   // Ethernet got a valid link
@@ -68,7 +68,7 @@ void event_handler(void*,
     link_status = ETH_LINK_DOWN;
     ip.fill(0);
     ip_str.clear();
-    led::wifi(false);
+    led::wifi::off();
     LOGI("ETHERNET_EVENT_DISCONNECTED");
   }
 }

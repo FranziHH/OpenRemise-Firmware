@@ -15,7 +15,7 @@
 
 /// WiFi LED
 ///
-/// \file   drv/led/wifi.hpp
+/// \file   drv/led/network.hpp
 /// \author Vincent Hamp
 /// \date   27/04/2025
 
@@ -25,7 +25,7 @@
 
 namespace drv::led {
 
-    class wifi {
+    class network {
         public:
             static void on();
             static void off();

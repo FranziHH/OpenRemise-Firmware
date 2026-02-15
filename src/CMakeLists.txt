@@ -42,7 +42,7 @@ else()
     drv/eth/init.cpp
     drv/led/bug.cpp
     drv/led/init.cpp
-    drv/led/wifi.cpp
+    drv/led/network.cpp
     drv/out/susi/init.cpp
     drv/out/susi/zimo/zusi/resume.cpp
     drv/out/susi/zimo/zusi/suspend.cpp

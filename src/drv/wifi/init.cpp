@@ -30,7 +30,7 @@
 #include <optional>
 #include <vector>
 #include <ztl/string.hpp>
-#include "drv/led/wifi.hpp"
+#include "drv/led/network.hpp"
 #include "log.h"
 #include "mem/nvs/settings.hpp"
 #include "task_function.hpp"
@@ -99,14 +99,14 @@ void event_handler(void*,
     auto const count{
       snprintf(data(ip), size(ip), IPSTR, IP2STR(&event->ip_info.ip))};
     ip_str.replace(0uz, count, data(ip));
-    led::wifi::on();
+    led::network::on();
     LOGI("IP_EVENT_STA_GOT_IP %s", ip_str.c_str());
   }
   // Station lost IP and the IP is reset to 0
   else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_LOST_IP) {
     ip.fill(0);
     ip_str.clear();
-    led::wifi::off();
+    led::network::off();
     esp_wifi_connect();
     LOGI("IP_EVENT_STA_LOST_IP");
   }
@@ -121,14 +121,14 @@ void event_handler(void*,
     auto const event{std::bit_cast<wifi_event_sta_disconnected_t*>(event_data)};
     ip.fill(0);
     ip_str.clear();
-    led::wifi::off();
+    led::network::off();
     esp_wifi_connect();
     LOGI("WIFI_EVENT_STA_DISCONNECTED %.*s", event->ssid_len, event->ssid);
   }
   // Station connected to Soft-AP
   else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_AP_STACONNECTED) {
     auto const event{std::bit_cast<wifi_event_ap_staconnected_t*>(event_data)};
-    led::wifi::blink(1000, 500);
+    led::network::blink(1000, 500);
     LOGI("WIFI_EVENT_AP_STACONNECTED");
   }
   // Station disconnected from Soft-AP
@@ -136,7 +136,7 @@ void event_handler(void*,
            event_id == WIFI_EVENT_AP_STADISCONNECTED) {
     auto const event{
       std::bit_cast<wifi_event_ap_stadisconnected_t*>(event_data)};
-    led::wifi::blink();
+    led::network::blink();
     LOGI("WIFI_EVENT_AP_STADISCONNECTED");
   }
 }
@@ -278,7 +278,7 @@ esp_err_t init() {
   }
   // ... or fallback to AP
   else {
-    led::wifi::blink();
+    led::network::blink();
     return ap_init(ap_config());
   }
 }

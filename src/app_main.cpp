@@ -32,6 +32,7 @@
 #include "intf/udp/init.hpp"
 #include "intf/usb/init.hpp"
 #include "mem/nvs/init.hpp"
+#include "mem/nvs/settings.hpp"
 #include "mw/dcc/init.hpp"
 #include "mw/disp/init.hpp"
 #include "mw/ota/init.hpp"
@@ -73,8 +74,10 @@ extern "C" void app_main() {
   ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, intf::udp::init));
   ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, mw::dcc::init));
   static_assert(APP_CPU_NUM == mw::dcc::task.core_id);
-  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, mw::disp::init));
-  static_assert(APP_CPU_NUM == mw::disp::task.core_id);
+  if (mem::nvs::Settings nvs; nvs.getExtensionFlags() & 0b1u) {
+    ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, mw::disp::init));
+    static_assert(APP_CPU_NUM == mw::disp::task.core_id);
+  }
   ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, mw::ota::init));
   static_assert(APP_CPU_NUM == mw::ota::task.core_id);
   ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, mw::roco::z21::init));

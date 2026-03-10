@@ -15,11 +15,11 @@
 
 /// WiFi LED
 ///
-/// \file   drv/led/network.cpp
+/// \file   drv/led/wifi.cpp
 /// \author Vincent Hamp
 /// \date   27/04/2025
 
-#include "network.hpp"
+#include "wifi.hpp"
 #include <driver/ledc.h>
 #include "mem/nvs/settings.hpp"
 
@@ -49,7 +49,7 @@ namespace drv::led {
     }
   }  // namespace
 
-  void network::on() {
+  void wifi::on() {
     if (blink_task_handle) 
       vTaskSuspend(blink_task_handle);
     auto const duty = calculate_duty();
@@ -57,14 +57,14 @@ namespace drv::led {
     ESP_ERROR_CHECK(ledc_update_duty(LEDC_LOW_SPEED_MODE, wifi_channel));
   }
 
-  void network::off() {
+  void wifi::off() {
     if (blink_task_handle) 
       vTaskSuspend(blink_task_handle);
     ESP_ERROR_CHECK(ledc_set_duty(LEDC_LOW_SPEED_MODE, wifi_channel, 0));
     ESP_ERROR_CHECK(ledc_update_duty(LEDC_LOW_SPEED_MODE, wifi_channel));
   }
 
-  void network::blink(int on, int off) {
+  void wifi::blink(int on, int off) {
     blink_on = on;
     blink_off = off;
     

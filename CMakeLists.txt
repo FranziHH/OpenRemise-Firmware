@@ -155,10 +155,7 @@ endif()
 # message(STATUS "CONFIG_COMPILER_OPTIMIZATION_SIZE: ${CONFIG_COMPILER_OPTIMIZATION_SIZE}")
 
 # Custom release target to create .zip
-if(ESP_PLATFORM
-   AND NOT IDF_TARGET STREQUAL linux
-   AND CONFIG_COMPILER_OPTIMIZATION_SIZE
-   )
+if(ESP_PLATFORM AND NOT IDF_TARGET STREQUAL linux)
 
   if(EXISTS "${CMAKE_SOURCE_DIR}/ftp_credentials.cmake")
     include("${CMAKE_SOURCE_DIR}/ftp_credentials.cmake")

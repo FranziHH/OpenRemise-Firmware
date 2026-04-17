@@ -25,6 +25,8 @@
 #include <esp_app_desc.h>
 #include <esp_task.h>
 #include "drv/anlg/convert.hpp"
+#include "drv/eth/init.hpp"
+#include "drv/wifi/init.hpp"
 #include "mem/nvs/settings.hpp"
 
 namespace mw::disp {
@@ -48,7 +50,10 @@ namespace mw::disp {
 
   JsonDocument doc;
   auto const app_desc{esp_app_get_description()};
-  doc["version"] = app_desc->version;
+  std::string version_str = std::string(app_desc->version);
+#if defined(CONFIG_COMPILER_OPTIMIZATION_DEBUG)
+  version_str += " debug";
+#endif
 
   static constexpr auto capacity{1024uz};
   std::string json{};
@@ -56,6 +61,10 @@ namespace mw::disp {
 
   for (;;) {
     if (mem::nvs::Settings nvs; nvs.getExtensionFlags() & 0b1u) {
+      doc.clear();
+      doc["version"] = version_str;
+      doc["eth_connected"] = drv::eth::is_connected();
+      doc["wifi_status"] = static_cast<int>(drv::wifi::get_status());
       doc["ip"] = drv::wifi::ip_str;
       doc["state"] = magic_enum::enum_name(state.load());
       doc["ssid"] = nvs.getStationSSID();
@@ -79,7 +88,10 @@ namespace mw::disp {
               std::accumulate(cbegin(currents), cend(currents), 0) /
               size(currents)))
             .value();
-
+      if (TemperatureQueue::value_type temp;
+          xQueuePeek(temperature_queue.handle, &temp, 0u))
+        doc["temperature"] = temp;
+        
       //
       serializeJson(doc, json);
       assert(json.capacity() == capacity);

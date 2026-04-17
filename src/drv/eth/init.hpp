@@ -26,5 +26,6 @@
 namespace drv::eth {
 
 esp_err_t init();
+bool is_connected();
 
 } // namespace drv::eth

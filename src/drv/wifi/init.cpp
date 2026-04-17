@@ -36,6 +36,8 @@
 
 namespace drv::wifi {
 
+volatile Status current_status{Status::DISCONNECTED};
+
 namespace {
 
 /// \todo document
@@ -98,6 +100,7 @@ void event_handler(void*,
     auto const count{
       snprintf(data(ip), size(ip), IPSTR, IP2STR(&event->ip_info.ip))};
     ip_str.replace(0uz, count, data(ip));
+    current_status = Status::STA_CONNECTED;
     led::wifi::on();
     LOGI("IP_EVENT_STA_GOT_IP %s", ip_str.c_str());
   }
@@ -106,6 +109,7 @@ void event_handler(void*,
     ip.fill(0);
     ip_str.clear();
     led::wifi::off();
+    current_status = Status::DISCONNECTED;
     esp_wifi_connect();
     LOGI("IP_EVENT_STA_LOST_IP");
   }
@@ -121,6 +125,7 @@ void event_handler(void*,
     ip.fill(0);
     ip_str.clear();
     led::wifi::off();
+    current_status = Status::DISCONNECTED;
     esp_wifi_connect();
     LOGI("WIFI_EVENT_STA_DISCONNECTED %.*s", event->ssid_len, event->ssid);
   }
@@ -128,6 +133,7 @@ void event_handler(void*,
   else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_AP_STACONNECTED) {
     auto const event{std::bit_cast<wifi_event_ap_staconnected_t*>(event_data)};
     led::wifi::blink(1000, 500);
+    current_status = Status::AP_CONNECTED;
     LOGI("WIFI_EVENT_AP_STACONNECTED");
   }
   // Station disconnected from Soft-AP
@@ -136,6 +142,7 @@ void event_handler(void*,
     auto const event{
       std::bit_cast<wifi_event_ap_stadisconnected_t*>(event_data)};
     led::wifi::blink();
+    current_status = Status::AP_ACTIVE;
     LOGI("WIFI_EVENT_AP_STADISCONNECTED");
   }
 }
@@ -276,8 +283,13 @@ esp_err_t init() {
   // ... or fallback to AP
   else {
     led::wifi::blink();
+    current_status = Status::AP_ACTIVE;
     return ap_init(ap_config());
   }
+}
+
+Status get_status() {
+    return current_status;
 }
 
 } // namespace drv::wifi

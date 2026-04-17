@@ -400,7 +400,11 @@ Response Server::sysGetRequest(Request const& req) {
   JsonDocument doc;
 
   doc["state"] = magic_enum::enum_name(state.load());
-
+#if defined(CONFIG_COMPILER_OPTIMIZATION_DEBUG)
+  doc["version_ext"] = "debug";
+#else
+  doc["version_ext"] = "";
+#endif
   auto const app_desc{esp_app_get_description()};
   doc["version"] = app_desc->version;
   doc["project_name"] = app_desc->project_name;

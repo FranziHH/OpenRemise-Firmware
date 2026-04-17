@@ -3,12 +3,12 @@
     "full": [
       {
         "id": "v0.7.1/Firmware_Full.bin",
-        "name": "2026-04-15 v0.7.1",
+        "name": "2026-04-17 v0.7.1",
         "offset": "0x0"
       },
       {
         "id": "v0.7.1FW/Firmware_Full.bin",
-        "name": "2026-04-15 v0.7.1 FW",
+        "name": "2026-04-17 v0.7.1 FW",
         "offset": "0x0"
       },
       {
@@ -65,12 +65,12 @@
     "update": [
       {
         "id": "v0.7.1/Firmware.bin",
-        "name": "2026-04-15 v0.7.1",
+        "name": "2026-04-17 v0.7.1",
         "offset": "0x10000"
       },
       {
         "id": "v0.7.1FW/Firmware.bin",
-        "name": "2026-04-15 v0.7.1 FW",
+        "name": "2026-04-17 v0.7.1 FW",
         "offset": "0x10000"
       },
       {

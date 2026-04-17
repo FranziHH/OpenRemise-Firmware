@@ -25,6 +25,14 @@
 
 namespace drv::wifi {
 
+enum class Status {
+    DISCONNECTED,
+    STA_CONNECTED,
+    AP_ACTIVE,
+    AP_CONNECTED
+};
+
 esp_err_t init();
+Status get_status();
 
 } // namespace drv::wifi

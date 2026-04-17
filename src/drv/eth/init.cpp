@@ -75,6 +75,10 @@ void event_handler(void*,
 
 } // namespace
 
+bool is_connected() {
+    return link_status == ETH_LINK_UP;
+}
+
 /// \todo document
 esp_err_t init() {
   // Set global MAC string

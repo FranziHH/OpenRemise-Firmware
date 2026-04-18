@@ -141,6 +141,7 @@ void Service::end() {
   if (err == ESP_OK) err = esp_ota_set_boot_partition(_partition);
   if (err == ESP_OK) {
     restart_flag = true;
+    vTaskDelay(pdMS_TO_TICKS(1000));
     LOGI("Update successful, restarting...");
     esp_restart();
   }

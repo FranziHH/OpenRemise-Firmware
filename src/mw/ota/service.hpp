@@ -33,6 +33,7 @@ class Service {
 public:
   Service();
 
+  static bool is_restarting();
   esp_err_t socket(intf::http::Message& msg);
 
 private:

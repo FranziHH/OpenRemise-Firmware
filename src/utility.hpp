@@ -35,6 +35,7 @@
 #include "log.h"
 
 void esp_delayed_restart();
+bool is_util_restarting();
 
 bool validate_json(std::string_view json);
 

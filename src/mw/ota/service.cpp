@@ -31,6 +31,8 @@
 
 namespace mw::ota {
 
+bool restart_flag = false;
+
 /// \todo document
 /// \bug should this broadcast Z21 programming mode?
 Service::Service() {
@@ -138,6 +140,7 @@ void Service::end() {
   auto err{esp_ota_end(_handle)};
   if (err == ESP_OK) err = esp_ota_set_boot_partition(_partition);
   if (err == ESP_OK) {
+    restart_flag = true;
     LOGI("Update successful, restarting...");
     esp_restart();
   }
@@ -154,6 +157,10 @@ void Service::close() {
   if (auto expected{State::OTA};
       !state.compare_exchange_strong(expected, State::Suspended))
     assert(false);
+}
+
+bool Service::is_restarting() {
+    return restart_flag;
 }
 
 } // namespace mw::ota

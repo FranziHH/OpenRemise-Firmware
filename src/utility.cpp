@@ -28,6 +28,8 @@
 
 namespace {
 
+bool restart_flag = false;
+
 /// Restart in 1s
 [[noreturn]] void restart_in_1s(void*) {
   // If running DCC do emergency stop for 1s
@@ -52,6 +54,7 @@ namespace {
 
 void esp_delayed_restart() {
   LOGI("esp_delayed_restart");
+  restart_flag = true;
   xTaskCreate(restart_in_1s, NULL, 1024uz, NULL, tskIDLE_PRIORITY, NULL);
 }
 
@@ -87,4 +90,8 @@ std::optional<dcc::Address> uri2loco_address(std::string_view uri) {
 uint32_t http_receive_timeout2ms() {
   mem::nvs::Settings nvs;
   return nvs.getHttpReceiveTimeout() * 1000u;
+}
+
+bool is_util_restarting() {
+    return restart_flag;
 }

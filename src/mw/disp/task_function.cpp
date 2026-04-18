@@ -28,6 +28,8 @@
 #include "drv/eth/init.hpp"
 #include "drv/wifi/init.hpp"
 #include "mem/nvs/settings.hpp"
+#include "mw/ota/service.hpp"
+#include "utility.hpp"
 
 namespace mw::disp {
 
@@ -62,6 +64,7 @@ namespace mw::disp {
   for (;;) {
     if (mem::nvs::Settings nvs; nvs.getExtensionFlags() & 0b1u) {
       doc.clear();
+      doc["is_restarting"] = is_util_restarting() || mw::ota::Service::is_restarting();
       doc["version"] = version_str;
       doc["eth_connected"] = drv::eth::is_connected();
       doc["wifi_status"] = static_cast<int>(drv::wifi::get_status());

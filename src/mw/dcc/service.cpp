@@ -347,8 +347,11 @@ Service::turnoutsPutRequest(intf::http::Request const& req) {
 void Service::operationsLoop() {
   while (state.load() == State::DCCOperations) {
 
-    if (gpio_get_level(drv::out::track::emergency_gpio_num) == 0) { 
-      if (_z21_system_service) {
+    if (gpio_get_level(drv::out::track::emergency_gpio_num) == 0) {
+      if (auto const is_on{!std::to_underlying(
+            _z21_system_service->systemState().central_state &
+            z21::CentralState::TrackVoltageOff)};
+          is_on) {
         _z21_system_service->trackPower(false);
         _z21_system_service->broadcastTrackPowerOff();
       }

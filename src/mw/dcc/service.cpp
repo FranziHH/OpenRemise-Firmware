@@ -346,6 +346,14 @@ Service::turnoutsPutRequest(intf::http::Request const& req) {
 /// \todo document
 void Service::operationsLoop() {
   while (state.load() == State::DCCOperations) {
+
+    if (gpio_get_level(drv::out::track::emergency_gpio_num) == 0) { 
+      if (_z21_system_service) {
+        _z21_system_service->trackPower(false);
+        _z21_system_service->broadcastTrackPowerOff();
+      }
+    }
+    
     operationsLocos();
     operationsTurnouts();
     operationsBiDi();

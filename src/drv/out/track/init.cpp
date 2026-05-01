@@ -101,6 +101,24 @@ esp_err_t init_gpio() {
   // individual GPIO pins via gpio_isr_handler_add
   ESP_ERROR_CHECK(gpio_install_isr_service(ESP_INTR_FLAG_LEVEL2));
 
+  {
+    static constexpr gpio_config_t gpio_cfg{
+      .pin_bit_mask = 1ull << emergency_gpio_num,
+      .mode = GPIO_MODE_INPUT,
+      .pull_up_en = GPIO_PULLUP_ENABLE,
+      .pull_down_en = GPIO_PULLDOWN_DISABLE,
+      .intr_type = GPIO_INTR_DISABLE
+    };
+    ESP_ERROR_CHECK(gpio_config(&gpio_cfg));
+    
+    // Optional: Der Glitch-Filter (empfohlen)
+    gpio_glitch_filter_handle_t filter;
+    static constexpr gpio_pin_glitch_filter_config_t filter_cfg{
+      .clk_src = GLITCH_FILTER_CLK_SRC_DEFAULT, .gpio_num = emergency_gpio_num};
+    ESP_ERROR_CHECK(gpio_new_pin_glitch_filter(&filter_cfg, &filter));
+    ESP_ERROR_CHECK(gpio_glitch_filter_enable(filter));
+  }
+
   //
   {
     static constexpr gpio_config_t gpio_cfg{

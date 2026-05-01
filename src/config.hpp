@@ -379,6 +379,7 @@ inline constexpr auto ilim0_gpio_num{GPIO_NUM_15};
 inline constexpr auto ilim1_gpio_num{GPIO_NUM_16};
 inline constexpr auto nfault_gpio_num{GPIO_NUM_46};
 inline constexpr auto enable_gpio_num{GPIO_NUM_12};
+inline constexpr auto emergency_gpio_num{GPIO_NUM_39};
 
 ///
 inline struct RxQueue {

@@ -38,6 +38,8 @@ public:
   Response sysGetRequest(Request const& req);
 
 private:
+  uint32_t versionToInt(std::string const& v);
+
   esp_err_t getHandler(httpd_req_t* req);
   esp_err_t putPostHandler(httpd_req_t* req);
   esp_err_t deleteHandler(httpd_req_t* req);

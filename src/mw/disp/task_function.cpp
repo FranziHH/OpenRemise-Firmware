@@ -33,12 +33,6 @@
 
 namespace mw::disp {
 
-auto versionToInt = [](std::string const& v) -> uint32_t {
-    int major = 0, minor = 0, patch = 0;
-    std::sscanf(v.c_str(), "%d.%d.%d", &major, &minor, &patch);
-    return static_cast<uint32_t>((major << 16) | (minor << 8) | patch);
-};
-
 /// Display telemetry task
 ///
 /// This task periodically emits a JSON status frame over `UART_NUM_0` when the
@@ -73,7 +67,6 @@ auto versionToInt = [](std::string const& v) -> uint32_t {
       doc["is_restarting"] = is_util_restarting() || mw::ota::Service::is_restarting();
       doc["version"] = version_str;
       doc["revision"] = revision;
-      doc["legacy"] = (versionToInt(std::string(revision)) < 0x010200);
       doc["eth_connected"] = drv::eth::is_connected();
       doc["wifi_status"] = static_cast<int>(drv::wifi::get_status());
       doc["ip"] = drv::wifi::ip_str;

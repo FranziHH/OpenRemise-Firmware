@@ -392,12 +392,6 @@ Response Server::settingsPostRequest(Request const& req) {
   return {};
 }
 
-uint32_t Server::versionToInt(std::string const& v) {
-  int major = 0, minor = 0, patch = 0;
-  std::sscanf(v.c_str(), "%d.%d.%d", &major, &minor, &patch);
-  return static_cast<uint32_t>((major << 16) | (minor << 8) | patch);
-}
-
 /// \todo document
 Response Server::sysGetRequest(Request const& req) {
   using namespace drv::anlg;
@@ -419,7 +413,6 @@ Response Server::sysGetRequest(Request const& req) {
   doc["idf_version"] = app_desc->idf_ver + 1; // Remove 'v' prefix
 
   doc["revision"] = revision;
-  doc["legacy"] = (Server::versionToInt(std::string(revision)) < 0x010200);
 
   doc["mdns"] = mdns::str;
   doc["ip"] = drv::wifi::ip_str;

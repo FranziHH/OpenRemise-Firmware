@@ -66,6 +66,7 @@ namespace mw::disp {
       doc.clear();
       doc["is_restarting"] = is_util_restarting() || mw::ota::Service::is_restarting();
       doc["version"] = version_str;
+      doc["compile_date"] = app_desc->date;
       doc["revision"] = revision;
       doc["eth_connected"] = drv::eth::is_connected();
       doc["wifi_status"] = static_cast<int>(drv::wifi::get_status());

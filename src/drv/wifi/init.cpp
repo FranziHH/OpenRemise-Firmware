@@ -19,8 +19,6 @@
 /// \author Vincent Hamp
 /// \date   02/07/2023
 
-#pragma once
-
 #include "init.hpp"
 #include <driver/gpio.h>
 #include <esp_mac.h>
@@ -96,7 +94,7 @@ void event_handler(void*,
                    void* event_data) {
   // Station got IP from connected AP
   if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
-    auto const event{std::bit_cast<ip_event_got_ip_t*>(event_data)};
+    auto const event{static_cast<ip_event_got_ip_t*>(event_data)};
     auto const count{
       snprintf(data(ip), size(ip), IPSTR, IP2STR(&event->ip_info.ip))};
     ip_str.replace(0uz, count, data(ip));
@@ -115,13 +113,13 @@ void event_handler(void*,
   }
   // Station connected to AP
   else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_CONNECTED) {
-    auto const event{std::bit_cast<wifi_event_sta_connected_t*>(event_data)};
+    auto const event{static_cast<wifi_event_sta_connected_t*>(event_data)};
     LOGI("WIFI_EVENT_STA_CONNECTED %.*s", event->ssid_len, event->ssid);
   }
   // Station disconnected from AP
   else if (event_base == WIFI_EVENT &&
            event_id == WIFI_EVENT_STA_DISCONNECTED) {
-    auto const event{std::bit_cast<wifi_event_sta_disconnected_t*>(event_data)};
+    auto const event{static_cast<wifi_event_sta_disconnected_t*>(event_data)};
     ip.fill(0);
     ip_str.clear();
     led::wifi::off();
@@ -131,7 +129,8 @@ void event_handler(void*,
   }
   // Station connected to Soft-AP
   else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_AP_STACONNECTED) {
-    auto const event{std::bit_cast<wifi_event_ap_staconnected_t*>(event_data)};
+    [[maybe_unused]] auto const event{
+      static_cast<wifi_event_ap_staconnected_t*>(event_data)};
     led::wifi::blink(1000, 500);
     current_status = Status::AP_CONNECTED;
     LOGI("WIFI_EVENT_AP_STACONNECTED");
@@ -139,8 +138,8 @@ void event_handler(void*,
   // Station disconnected from Soft-AP
   else if (event_base == WIFI_EVENT &&
            event_id == WIFI_EVENT_AP_STADISCONNECTED) {
-    auto const event{
-      std::bit_cast<wifi_event_ap_stadisconnected_t*>(event_data)};
+    [[maybe_unused]] auto const event{
+      static_cast<wifi_event_ap_stadisconnected_t*>(event_data)};
     led::wifi::blink();
     current_status = Status::AP_ACTIVE;
     LOGI("WIFI_EVENT_AP_STADISCONNECTED");

@@ -22,6 +22,7 @@
 #include "utility.hpp"
 #include <ArduinoJson.h>
 #include <driver/gpio.h>
+#include <esp_ipc.h>
 #include <esp_system.h>
 #include "log.h"
 #include "mem/nvs/settings.hpp"
@@ -94,4 +95,25 @@ uint32_t http_receive_timeout2ms() {
 
 bool is_util_restarting() {
     return restart_flag;
+}
+
+/// \todo document
+esp_err_t ipc_call_blocking(BaseType_t core_id, esp_err_t (*f)()) {
+  // Pinned and current core are the same
+  if (core_id == xPortGetCoreID()) return std::invoke(f);
+  // Pinned core is different
+  else {
+    // Create tuple to pass to task
+    std::tuple t{ESP_FAIL, f};
+
+    ESP_ERROR_CHECK(esp_ipc_call_blocking(
+      core_id,
+      [](void* pv) {
+        auto& _t{*static_cast<decltype(t)*>(pv)};
+        std::get<0uz>(_t) = std::invoke(std::get<1uz>(_t));
+      },
+      &t));
+
+    return std::get<0uz>(t);
+  }
 }

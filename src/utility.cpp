@@ -59,6 +59,10 @@ void esp_delayed_restart() {
   xTaskCreate(restart_in_1s, NULL, 1024uz, NULL, tskIDLE_PRIORITY, NULL);
 }
 
+bool is_util_restarting() {
+    return restart_flag;
+}
+
 // https://arduinojson.org/v6/how-to/validate-json/
 bool validate_json(std::string_view json) {
   JsonDocument doc, filter;
@@ -91,10 +95,6 @@ std::optional<dcc::Address> uri2loco_address(std::string_view uri) {
 uint32_t http_receive_timeout2ms() {
   mem::nvs::Settings nvs;
   return nvs.getHttpReceiveTimeout() * 1000u;
-}
-
-bool is_util_restarting() {
-    return restart_flag;
 }
 
 /// \todo document

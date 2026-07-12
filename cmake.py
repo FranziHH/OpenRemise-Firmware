@@ -18,11 +18,11 @@ def run():
     # Der Befehl - exakt deine Dateien, exakt deine Offsets
     args = [
         '--chip', 'esp32s3',
-        'merge_bin',
+        'merge-bin',
         '-o', 'Firmware_Full.bin',
-        '--flash_mode', 'dout',
-        '--flash_freq', '80m',
-        '--flash_size', '32MB',
+        '--flash-mode', 'dout',
+        '--flash-freq', '80m',
+        '--flash-size', '32MB',
         '0x0', 'bootloader/bootloader.bin',
         '0x8000', 'partition_table/partition-table.bin',
         '0x9000', 'ota_data_initial.bin',

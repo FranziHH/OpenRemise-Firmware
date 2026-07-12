@@ -18,6 +18,7 @@
 #include <esp_task.h>
 #include <static_math/static_math.h>
 #include <dcc/dcc.hpp>
+#include <driver/gpio.h>
 #include <ranges>
 #include "drv/led/bug.hpp"
 #include "log.h"

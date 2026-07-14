@@ -106,6 +106,7 @@ esp_err_t ipc_call_blocking(BaseType_t core_id, esp_err_t (*f)()) {
     // Create tuple to pass to task
     std::tuple t{ESP_FAIL, f};
 
+#if !defined(CONFIG_IDF_TARGET_LINUX)
     ESP_ERROR_CHECK(esp_ipc_call_blocking(
       core_id,
       [](void* pv) {
@@ -113,6 +114,7 @@ esp_err_t ipc_call_blocking(BaseType_t core_id, esp_err_t (*f)()) {
         std::get<0uz>(_t) = std::invoke(std::get<1uz>(_t));
       },
       &t));
+#endif
 
     return std::get<0uz>(t);
   }

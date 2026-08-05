@@ -90,8 +90,6 @@ if(ESP_PLATFORM
       Frontend
       URL
       "https://github.com/OpenRemise/Frontend/releases/download/v${VERSION_FROM_GIT}/Frontend-${VERSION_FROM_GIT}.zip"
-      VERSION
-      ${OPENREMISE_FRONTENVERSION_FROM_GITD_VERSION}
       DOWNLOAD_ONLY
       ON)
     # message(STATUS "Frontend Source Dir: ${Frontend_SOURCE_DIR}")
@@ -181,7 +179,7 @@ if(ESP_PLATFORM AND NOT IDF_TARGET STREQUAL linux)
       FirmwareRelease
       
       COMMAND
-        ${CMAKE_COMMAND} -E tar "cf" ${BUILD_TIMESTAMP}_${PROJECT_NAME}_${PROJECT_VERSION}.zip
+        ${CMAKE_COMMAND} -E tar "cf" ${BUILD_TIMESTAMP}_${PROJECT_NAME}_${PROJECT_VERSION}${IDENTIFIERS_FROM_GIT}.zip
         --format=zip #
         flasher_args.json #
         bootloader/bootloader.bin #
@@ -199,7 +197,7 @@ if(ESP_PLATFORM AND NOT IDF_TARGET STREQUAL linux)
       COMMAND ${CMAKE_COMMAND} -E copy "bootloader/bootloader.bin" "${FW_DIR}/bootloader/"
       COMMAND ${CMAKE_COMMAND} -E copy "partition_table/partition-table.bin" "${FW_DIR}/partition_table/"
 
-      COMMAND ftp -u ftp://${FTP_USER}:${FTP_PASSWORD}@${FTP_SERVER_PATH}${BUILD_TIMESTAMP}_${PROJECT_NAME}_${PROJECT_VERSION}.zip ${BUILD_TIMESTAMP}_${PROJECT_NAME}_${PROJECT_VERSION}.zip
+      COMMAND ftp -u ftp://${FTP_USER}:${FTP_PASSWORD}@${FTP_SERVER_PATH}${BUILD_TIMESTAMP}_${PROJECT_NAME}_${PROJECT_VERSION}${IDENTIFIERS_FROM_GIT}.zip ${BUILD_TIMESTAMP}_${PROJECT_NAME}_${PROJECT_VERSION}${IDENTIFIERS_FROM_GIT}.zip
 
       WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
       DEPENDS all
@@ -209,7 +207,7 @@ if(ESP_PLATFORM AND NOT IDF_TARGET STREQUAL linux)
       FirmwareReleaseTEST
       
       COMMAND
-        ${CMAKE_COMMAND} -E tar "cf" ${BUILD_TIMESTAMP}_${PROJECT_NAME}_${PROJECT_VERSION}_${FILE_POSTFIX}.zip
+        ${CMAKE_COMMAND} -E tar "cf" ${BUILD_TIMESTAMP}_${PROJECT_NAME}_${PROJECT_VERSION}${IDENTIFIERS_FROM_GIT}_${FILE_POSTFIX}.zip
         --format=zip #
         flasher_args.json #
         bootloader/bootloader.bin #
@@ -217,7 +215,7 @@ if(ESP_PLATFORM AND NOT IDF_TARGET STREQUAL linux)
         partition_table/partition-table.bin #
         ota_data_initial.bin #
         nvs.bin #
-      COMMAND ftp -u ftp://${FTP_USER}:${FTP_PASSWORD}@${FTP_SERVER_PATH}${BUILD_TIMESTAMP}_${PROJECT_NAME}_${PROJECT_VERSION}_${FILE_POSTFIX}.zip ${BUILD_TIMESTAMP}_${PROJECT_NAME}_${PROJECT_VERSION}_${FILE_POSTFIX}.zip
+      COMMAND ftp -u ftp://${FTP_USER}:${FTP_PASSWORD}@${FTP_SERVER_PATH}${BUILD_TIMESTAMP}_${PROJECT_NAME}_${PROJECT_VERSION}${IDENTIFIERS_FROM_GIT}_${FILE_POSTFIX}.zip ${BUILD_TIMESTAMP}_${PROJECT_NAME}_${PROJECT_VERSION}${IDENTIFIERS_FROM_GIT}_${FILE_POSTFIX}.zip
       DEPENDS all
       WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 
@@ -227,7 +225,7 @@ if(ESP_PLATFORM AND NOT IDF_TARGET STREQUAL linux)
       FirmwareRelease
       
       COMMAND
-        ${CMAKE_COMMAND} -E tar "cf" ${BUILD_TIMESTAMP}_${PROJECT_NAME}_${PROJECT_VERSION}.zip
+        ${CMAKE_COMMAND} -E tar "cf" ${BUILD_TIMESTAMP}_${PROJECT_NAME}_${PROJECT_VERSION}${IDENTIFIERS_FROM_GIT}.zip
         --format=zip #
         flasher_args.json #
         bootloader/bootloader.bin #
@@ -242,7 +240,7 @@ if(ESP_PLATFORM AND NOT IDF_TARGET STREQUAL linux)
       FirmwareReleaseTEST
       
       COMMAND
-        ${CMAKE_COMMAND} -E tar "cf" ${BUILD_TIMESTAMP}_${PROJECT_NAME}_${PROJECT_VERSION}_${FILE_POSTFIX}.zip
+        ${CMAKE_COMMAND} -E tar "cf" ${BUILD_TIMESTAMP}_${PROJECT_NAME}_${PROJECT_VERSION}${IDENTIFIERS_FROM_GIT}_${FILE_POSTFIX}.zip
         --format=zip #
         flasher_args.json #
         bootloader/bootloader.bin #

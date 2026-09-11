@@ -3,7 +3,7 @@
     "full": [
       {
         "id": "v0.8.1/Firmware_Full.bin",
-        "name": "2026-08-23 v0.8.1",
+        "name": "2026-09-11 v0.8.1",
         "offset": "0x0"
       },
       {
@@ -85,7 +85,7 @@
     "update": [
       {
         "id": "v0.8.1/Firmware.bin",
-        "name": "2026-08-23 v0.8.1",
+        "name": "2026-09-11 v0.8.1",
         "offset": "0x10000"
       },
       {

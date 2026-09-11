@@ -8,7 +8,7 @@
       },
       {
         "id": "v0.8.1FW/Firmware_Full.bin",
-        "name": "2026-08-23 v0.8.1 FW",
+        "name": "2026-09-11 v0.8.1 FW",
         "offset": "0x0"
       },
       {
@@ -90,7 +90,7 @@
       },
       {
         "id": "v0.8.1FW/Firmware.bin",
-        "name": "2026-08-23 v0.8.1 FW",
+        "name": "2026-09-11 v0.8.1 FW",
         "offset": "0x10000"
       },
       {

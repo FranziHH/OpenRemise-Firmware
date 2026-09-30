@@ -33,17 +33,24 @@ if(ESP_PLATFORM
    AND NOT IDF_TARGET STREQUAL linux
    AND NOT EXISTS ${Frontend_BINARY_DIR})
 
-  # Build from devel branch at config time
-  if(CMAKE_BUILD_TYPE STREQUAL Debug)
-    cpmaddpackage(
-      NAME
-      Frontend
-      GITHUB_REPOSITORY
-      "OpenRemise/Frontend"
-      GIT_TAG
-      turnouts
-      DOWNLOAD_ONLY
-      TRUE)
+  # Build from local repo or dev branch at config time
+  if(NOT ${OPENREMISE_FRONTEND_SOURCE_DIR} STREQUAL "" OR CMAKE_BUILD_TYPE
+                                                          STREQUAL Debug)
+    if(OPENREMISE_FRONTEND_SOURCE_DIR)
+      cpmaddpackage(NAME Frontend SOURCE_DIR ${OPENREMISE_FRONTEND_SOURCE_DIR}
+                    DOWNLOAD_ONLY TRUE)
+    else()
+      cpmaddpackage(
+        NAME
+        Frontend
+        GITHUB_REPOSITORY
+        "OpenRemise/Frontend"
+        GIT_TAG
+        dev
+        DOWNLOAD_ONLY
+        TRUE)
+    endif()
+
     execute_process(
       COMMAND ${CMAKE_COMMAND} -B${Frontend_BINARY_DIR}
       WORKING_DIRECTORY ${Frontend_SOURCE_DIR} COMMAND_ECHO STDOUT

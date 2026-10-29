@@ -2,6 +2,11 @@
   "openremise": {
     "full": [
       {
+        "id": "v0.9.0/Firmware_Full.bin",
+        "name": "2026-10-29 v0.9.0",
+        "offset": "0x0"
+      },
+      {
         "id": "v0.9.0FW/Firmware_Full.bin",
         "name": "2026-10-29 v0.9.0 FW",
         "offset": "0x0"
@@ -88,6 +93,11 @@
       }
     ],
     "update": [
+      {
+        "id": "v0.9.0/Firmware.bin",
+        "name": "2026-10-29 v0.9.0",
+        "offset": "0x10000"
+      },
       {
         "id": "v0.9.0FW/Firmware.bin",
         "name": "2026-10-29 v0.9.0 FW",

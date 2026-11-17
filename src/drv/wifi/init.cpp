@@ -55,8 +55,8 @@ void event_handler(void*,
     auto const count{
       snprintf(data(ip), size(ip), IPSTR, IP2STR(&event->ip_info.ip))};
     ip_str.replace(0uz, count, data(ip));
-    current_status = Status::STA_CONNECTED;
-    led::wifi::on();
+    current_status = Status::STA_GOT_IP;
+    led::wifi::blink(500, 100);
     LOGI("IP_EVENT_STA_GOT_IP %s", ip_str.c_str());
   }
   // Station lost IP and the IP is reset to 0
@@ -64,14 +64,16 @@ void event_handler(void*,
     sta_connected = false;
     ip.fill(0);
     ip_str.clear();
-    led::wifi::off();
-    current_status = Status::DISCONNECTED;
+    led::wifi::blink(500, 250);
+    current_status = Status::STA_LOST_IP;
     esp_wifi_connect();
     LOGI("IP_EVENT_STA_LOST_IP");
   }
   // Station connected to AP
   else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_CONNECTED) {
     auto const event{static_cast<wifi_event_sta_connected_t*>(event_data)};
+    current_status = Status::STA_CONNECTED;
+    led::wifi::blink(500, 500);
     LOGI("WIFI_EVENT_STA_CONNECTED %.*s", event->ssid_len, event->ssid);
   }
   // Station disconnected from AP
@@ -82,7 +84,7 @@ void event_handler(void*,
     ip.fill(0);
     ip_str.clear();
     led::wifi::off();
-    current_status = Status::DISCONNECTED;
+    current_status = Status::STA_DISCONNECTED;
     esp_wifi_connect();
     LOGI("WIFI_EVENT_STA_DISCONNECTED %.*s", event->ssid_len, event->ssid);
   }
@@ -101,8 +103,8 @@ void event_handler(void*,
     ap_client_count -= ap_client_count != 0uz;
     [[maybe_unused]] auto const event{
       static_cast<wifi_event_ap_stadisconnected_t*>(event_data)};
-    led::wifi::blink();
-    current_status = Status::AP_ACTIVE;
+    led::wifi::blink(1000, 250);
+    current_status = Status::AP_DISCONNECTED;
     LOGI("WIFI_EVENT_AP_STADISCONNECTED");
   }
 

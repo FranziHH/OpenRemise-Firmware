@@ -57,6 +57,7 @@
             "toolchainFile": "$env{IDF_PATH}/tools/cmake/toolchain-esp32s3.cmake",
             "binaryDir": "build",
             "cacheVariables": {
+                "BUILD_TESTING": "OFF",
                 "CCACHE_ENABLE": "OFF",
                 "CMAKE_BUILD_TYPE": "ReleaseTEST",
                 "ESP_PLATFORM": "ON",
@@ -71,6 +72,7 @@
             "toolchainFile": "$env{IDF_PATH}/tools/cmake/toolchain-esp32s3.cmake",
             "binaryDir": "build",
             "cacheVariables": {
+                "BUILD_TESTING": "OFF",
                 "CCACHE_ENABLE": "OFF",
                 "CMAKE_BUILD_TYPE": "ReleaseTEST",
                 "ESP_PLATFORM": "ON",

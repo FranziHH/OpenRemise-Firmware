@@ -1,114 +1,100 @@
-set(COMMON_SRC
-    drv/out/track/current_limit.cpp
-    intf/usb/rx_task_function.cpp
-    mem/nvs/accessories.cpp
-    mem/nvs/base.cpp
-    mem/nvs/init.cpp
-    mem/nvs/locos.cpp
-    mem/nvs/settings.cpp
-    mem/nvs/task_function.cpp
-    mem/nvs/turnouts.cpp
-    mem/nvs/utility.cpp
-    mw/dcc/accessory.cpp
-    mw/dcc/loco.cpp
-    mw/dcc/service.cpp
-    mw/dcc/system_state.cpp
-    mw/dcc/turnout.cpp
-    mw/zimo/ulf/dcc_ein/task_function.cpp
-    utility.cpp)
-
-if(IDF_TARGET STREQUAL linux)
-  idf_component_register(
-    SRCS
-    ${COMMON_SRC}
-    INCLUDE_DIRS
-    .
-    ${CMAKE_BINARY_DIR}
-    REQUIRES
-    bblanchon__arduinojson
-    driver
-    esp_app_format
-    esp_http_server
-    nvs_flash)
-else()
-  idf_component_register(
-    SRCS
-    ${COMMON_SRC}
-    drv/anlg/adc_task_function.cpp
-    drv/anlg/convert.cpp
-    drv/anlg/init.cpp
-    drv/anlg/temp_task_function.cpp
-    drv/eth/init.cpp
-    drv/led/bug.cpp
-    drv/led/init.cpp
-    drv/led/wifi.cpp
-    drv/out/susi/init.cpp
-    drv/out/susi/zimo/zusi/resume.cpp
-    drv/out/susi/zimo/zusi/suspend.cpp
-    drv/out/susi/zimo/zusi/task_function.cpp
-    drv/out/track/dcc/resume.cpp
-    drv/out/track/dcc/suspend.cpp
-    drv/out/track/dcc/task_function.cpp
-    drv/out/track/zimo/decup/resume.cpp
-    drv/out/track/zimo/decup/suspend.cpp
-    drv/out/track/zimo/decup/task_function.cpp
-    drv/out/track/zimo/mdu/resume.cpp
-    drv/out/track/zimo/mdu/suspend.cpp
-    drv/out/track/zimo/mdu/task_function.cpp
-    drv/out/track/init.cpp
-    drv/out/init.cpp
-    drv/out/suspend.cpp
-    drv/trace/init.cpp
-    drv/wifi/init.cpp
-    intf/dns/init.cpp
-    intf/http/init.cpp
-    intf/http/server.cpp
-    intf/http/init.cpp
-    intf/mdns/init.cpp
-    intf/udp/init.cpp
-    intf/usb/init.cpp
-    intf/usb/rx_task_function.cpp
-    intf/usb/tx_task_function.cpp
-    mw/dcc/init.cpp
-    mw/disp/init.cpp
-    mw/disp/task_function.cpp
-    mw/ota/init.cpp
-    mw/ota/service.cpp
-    mw/roco/z21/init.cpp
-    mw/roco/z21/service.cpp
-    mw/zimo/decup/init.cpp
-    mw/zimo/decup/service.cpp
-    mw/zimo/mdu/init.cpp
-    mw/zimo/mdu/service.cpp
-    mw/zimo/ulf/susiv2/task_function.cpp
-    mw/zimo/ulf/init.cpp
-    mw/zimo/zusi/init.cpp
-    mw/zimo/zusi/service.cpp
-    app_main.cpp
-    drv8328_test.cpp
-    INCLUDE_DIRS
-    .
-    ${CMAKE_BINARY_DIR}
-    REQUIRES
-    app_update
-    bootloader_support
-    dns_server
-    esp_adc
-    esp_app_format
-    esp_driver_gpio
-    esp_driver_gptimer
-    esp_driver_ledc
-    esp_driver_rmt
-    esp_driver_spi
-    esp_driver_tsens
-    esp_driver_uart
-    esp_eth
-    esp_http_server
-    esp_timer
-    esp_wifi
-    nvs_flash
-    vfs)
+if(NOT BUILD_TESTING)
+  set(APP_MAIN "app_main.cpp")
 endif()
+
+idf_component_register(
+  SRCS
+  drv/anlg/adc_task_function.cpp
+  drv/anlg/convert.cpp
+  drv/anlg/init.cpp
+  drv/anlg/temp_task_function.cpp
+  drv/eth/init.cpp
+  drv/led/bug.cpp
+  drv/led/init.cpp
+  drv/led/wifi.cpp
+  drv/out/susi/init.cpp
+  drv/out/susi/zimo/zusi/resume.cpp
+  drv/out/susi/zimo/zusi/suspend.cpp
+  drv/out/susi/zimo/zusi/task_function.cpp
+  drv/out/track/dcc/resume.cpp
+  drv/out/track/dcc/suspend.cpp
+  drv/out/track/dcc/task_function.cpp
+  drv/out/track/zimo/decup/resume.cpp
+  drv/out/track/zimo/decup/suspend.cpp
+  drv/out/track/zimo/decup/task_function.cpp
+  drv/out/track/zimo/mdu/resume.cpp
+  drv/out/track/zimo/mdu/suspend.cpp
+  drv/out/track/zimo/mdu/task_function.cpp
+  drv/out/track/current_limit.cpp
+  drv/out/track/init.cpp
+  drv/out/init.cpp
+  drv/out/suspend.cpp
+  drv/trace/init.cpp
+  drv/wifi/init.cpp
+  intf/dns/init.cpp
+  intf/http/init.cpp
+  intf/http/server.cpp
+  intf/http/init.cpp
+  intf/mdns/init.cpp
+  intf/udp/init.cpp
+  intf/usb/init.cpp
+  intf/usb/rx_task_function.cpp
+  intf/usb/tx_task_function.cpp
+  mem/nvs/accessories.cpp
+  mem/nvs/base.cpp
+  mem/nvs/init.cpp
+  mem/nvs/locos.cpp
+  mem/nvs/settings.cpp
+  mem/nvs/task_function.cpp
+  mem/nvs/turnouts.cpp
+  mem/nvs/utility.cpp
+  mw/dcc/accessory.cpp
+  mw/dcc/init.cpp
+  mw/dcc/loco.cpp
+  mw/dcc/service.cpp
+  mw/dcc/system_state.cpp
+  mw/dcc/turnout.cpp
+  mw/disp/init.cpp
+  mw/disp/task_function.cpp
+  mw/ota/init.cpp
+  mw/ota/service.cpp
+  mw/roco/z21/init.cpp
+  mw/roco/z21/service.cpp
+  mw/zimo/decup/init.cpp
+  mw/zimo/decup/service.cpp
+  mw/zimo/mdu/init.cpp
+  mw/zimo/mdu/service.cpp
+  mw/zimo/ulf/dcc_ein/task_function.cpp
+  mw/zimo/ulf/susiv2/task_function.cpp
+  mw/zimo/ulf/init.cpp
+  mw/zimo/zusi/init.cpp
+  mw/zimo/zusi/service.cpp
+  ${APP_MAIN}
+  drv8328_test.cpp
+  utility.cpp
+  INCLUDE_DIRS
+  .
+  ${CMAKE_BINARY_DIR}
+  REQUIRES
+  app_update
+  bootloader_support
+  dns_server
+  esp_adc
+  esp_app_format
+  esp_driver_gpio
+  esp_driver_gptimer
+  esp_driver_ledc
+  esp_driver_rmt
+  esp_driver_spi
+  esp_driver_tsens
+  esp_driver_twai
+  esp_driver_uart
+  esp_eth
+  esp_http_server
+  esp_timer
+  esp_wifi
+  nvs_flash
+  vfs)
 
 target_compile_features(${COMPONENT_LIB} PUBLIC cxx_std_23)
 
@@ -176,14 +162,12 @@ target_link_libraries(
          ZUSI::ZUSI)
 
 # Create NVS partition image
-if(NOT IDF_TARGET STREQUAL linux)
-  nvs_create_partition_image(nvs ../nvs.csv FLASH_IN_PROJECT)
+nvs_create_partition_image(nvs ../nvs.csv FLASH_IN_PROJECT)
 
-  # Assembly listening takes forever, add custom target
-  add_custom_target(
-    FirmwareLst
-    COMMAND ${CMAKE_OBJDUMP} --source --all-headers --demangle --line-numbers
-            --wide ${CMAKE_PROJECT_NAME}.elf > ${CMAKE_PROJECT_NAME}.lst
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
-  add_dependencies(FirmwareLst app)
-endif()
+# Assembly listening takes forever, add custom target
+add_custom_target(
+  FirmwareLst
+  COMMAND ${CMAKE_OBJDUMP} --source --all-headers --demangle --line-numbers
+          --wide ${CMAKE_PROJECT_NAME}.elf > ${CMAKE_PROJECT_NAME}.lst
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+add_dependencies(FirmwareLst app)

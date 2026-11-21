@@ -14,10 +14,8 @@ list(
   src
   $ENV{IDF_PATH}/examples/protocols/http_server/captive_portal/components/dns_server
 )
-if(IDF_TARGET STREQUAL linux)
-  # Don't change COMPONENTS on ESP32* targets, it removes a shit ton of defaults
-  list(APPEND COMPONENTS src tests)
-  list(APPEND EXTRA_COMPONENT_DIRS tests $ENV{IDF_PATH}/tools/mocks/driver)
+if(BUILD_TESTING)
+  list(APPEND EXTRA_COMPONENT_DIRS tests)
 endif()
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
@@ -29,13 +27,10 @@ project(
   LANGUAGES ASM C CXX)
 
 # Frontend
-if(ESP_PLATFORM
-   AND NOT IDF_TARGET STREQUAL linux
-   AND NOT EXISTS ${Frontend_BINARY_DIR})
-
+if(ESP_PLATFORM AND NOT EXISTS ${Frontend_BINARY_DIR})
   # Build from local repo or dev branch at config time
-  if(NOT ${OPENREMISE_FRONTEND_SOURCE_DIR} STREQUAL "" OR CMAKE_BUILD_TYPE
-                                                          STREQUAL Debug)
+  if(OPENREMISE_FRONTEND_SOURCE_DIR OR (CMAKE_BUILD_TYPE STREQUAL Debug
+                                        AND NOT BUILD_TESTING))
     if(OPENREMISE_FRONTEND_SOURCE_DIR)
       cpmaddpackage(NAME Frontend SOURCE_DIR ${OPENREMISE_FRONTEND_SOURCE_DIR}
                     DOWNLOAD_ONLY TRUE)
@@ -160,105 +155,101 @@ endif()
 # message(STATUS "CONFIG_COMPILER_OPTIMIZATION_SIZE: ${CONFIG_COMPILER_OPTIMIZATION_SIZE}")
 
 # Custom release target to create .zip
-if(ESP_PLATFORM AND NOT IDF_TARGET STREQUAL linux)
+if(EXISTS "${CMAKE_SOURCE_DIR}/ftp_credentials.cmake")
+  include("${CMAKE_SOURCE_DIR}/ftp_credentials.cmake")
+  set(FTP_DATA TRUE)
+else()
+  set(FILE_POSTFIX "??")
+  set(FTP_DATA FALSE)
+endif()
 
-  if(EXISTS "${CMAKE_SOURCE_DIR}/ftp_credentials.cmake")
-    include("${CMAKE_SOURCE_DIR}/ftp_credentials.cmake")
-    set(FTP_DATA TRUE)
-  else()
-    set(FILE_POSTFIX "??")
-    set(FTP_DATA FALSE)
-  endif()
+execute_process(
+  COMMAND date "+%Y-%m-%d_%H-%M"
+  OUTPUT_VARIABLE BUILD_TIMESTAMP
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+# message(STATUS "Timestamp ${BUILD_TIMESTAMP}")
 
-  execute_process(
-    COMMAND date "+%Y-%m-%d_%H-%M"
-    OUTPUT_VARIABLE BUILD_TIMESTAMP
-    OUTPUT_STRIP_TRAILING_WHITESPACE
+if(${FTP_DATA})
+  # define DEST_DIR in frontend_dir.cmake
+  set(FW_DIR "${DEST_DIR}/firmware/v${PROJECT_VERSION}")
+  message(STATUS "Firmware Dir: ${FW_DIR}")
+
+  add_custom_target(
+    FirmwareRelease
+    
+    COMMAND
+      ${CMAKE_COMMAND} -E tar "cf" ${BUILD_TIMESTAMP}_${PROJECT_NAME}_${PROJECT_VERSION}${IDENTIFIERS_FROM_GIT}.zip
+      --format=zip #
+      flasher_args.json #
+      bootloader/bootloader.bin #
+      Firmware.bin #
+      partition_table/partition-table.bin #
+      ota_data_initial.bin #
+      nvs.bin #
+    
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${FW_DIR}/partition_table"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${FW_DIR}/bootloader"
+    COMMAND ${CMAKE_COMMAND} -E copy "flasher_args.json" "${FW_DIR}/"
+    COMMAND ${CMAKE_COMMAND} -E copy "Firmware.bin" "${FW_DIR}/"
+    COMMAND ${CMAKE_COMMAND} -E copy "ota_data_initial.bin" "${FW_DIR}/"
+    COMMAND ${CMAKE_COMMAND} -E copy "nvs.bin" "${FW_DIR}/"
+    COMMAND ${CMAKE_COMMAND} -E copy "bootloader/bootloader.bin" "${FW_DIR}/bootloader/"
+    COMMAND ${CMAKE_COMMAND} -E copy "partition_table/partition-table.bin" "${FW_DIR}/partition_table/"
+
+    COMMAND ftp -u ftp://${FTP_USER}:${FTP_PASSWORD}@${FTP_SERVER_PATH}${BUILD_TIMESTAMP}_${PROJECT_NAME}_${PROJECT_VERSION}${IDENTIFIERS_FROM_GIT}.zip ${BUILD_TIMESTAMP}_${PROJECT_NAME}_${PROJECT_VERSION}${IDENTIFIERS_FROM_GIT}.zip
+
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    DEPENDS all
   )
-  # message(STATUS "Timestamp ${BUILD_TIMESTAMP}")
 
-  if(${FTP_DATA})
-    # define DEST_DIR in frontend_dir.cmake
-    set(FW_DIR "${DEST_DIR}/firmware/v${PROJECT_VERSION}")
-    message(STATUS "Firmware Dir: ${FW_DIR}")
+  add_custom_target(
+    FirmwareReleaseTEST
+    
+    COMMAND
+      ${CMAKE_COMMAND} -E tar "cf" ${BUILD_TIMESTAMP}_${PROJECT_NAME}_${PROJECT_VERSION}${IDENTIFIERS_FROM_GIT}_${FILE_POSTFIX}.zip
+      --format=zip #
+      flasher_args.json #
+      bootloader/bootloader.bin #
+      Firmware.bin #
+      partition_table/partition-table.bin #
+      ota_data_initial.bin #
+      nvs.bin #
+    COMMAND ftp -u ftp://${FTP_USER}:${FTP_PASSWORD}@${FTP_SERVER_PATH}${BUILD_TIMESTAMP}_${PROJECT_NAME}_${PROJECT_VERSION}${IDENTIFIERS_FROM_GIT}_${FILE_POSTFIX}.zip ${BUILD_TIMESTAMP}_${PROJECT_NAME}_${PROJECT_VERSION}${IDENTIFIERS_FROM_GIT}_${FILE_POSTFIX}.zip
+    DEPENDS all
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 
-    add_custom_target(
-      FirmwareRelease
-      
-      COMMAND
-        ${CMAKE_COMMAND} -E tar "cf" ${BUILD_TIMESTAMP}_${PROJECT_NAME}_${PROJECT_VERSION}${IDENTIFIERS_FROM_GIT}.zip
-        --format=zip #
-        flasher_args.json #
-        bootloader/bootloader.bin #
-        Firmware.bin #
-        partition_table/partition-table.bin #
-        ota_data_initial.bin #
-        nvs.bin #
-      
-      COMMAND ${CMAKE_COMMAND} -E make_directory "${FW_DIR}/partition_table"
-      COMMAND ${CMAKE_COMMAND} -E make_directory "${FW_DIR}/bootloader"
-      COMMAND ${CMAKE_COMMAND} -E copy "flasher_args.json" "${FW_DIR}/"
-      COMMAND ${CMAKE_COMMAND} -E copy "Firmware.bin" "${FW_DIR}/"
-      COMMAND ${CMAKE_COMMAND} -E copy "ota_data_initial.bin" "${FW_DIR}/"
-      COMMAND ${CMAKE_COMMAND} -E copy "nvs.bin" "${FW_DIR}/"
-      COMMAND ${CMAKE_COMMAND} -E copy "bootloader/bootloader.bin" "${FW_DIR}/bootloader/"
-      COMMAND ${CMAKE_COMMAND} -E copy "partition_table/partition-table.bin" "${FW_DIR}/partition_table/"
+else()
 
-      COMMAND ftp -u ftp://${FTP_USER}:${FTP_PASSWORD}@${FTP_SERVER_PATH}${BUILD_TIMESTAMP}_${PROJECT_NAME}_${PROJECT_VERSION}${IDENTIFIERS_FROM_GIT}.zip ${BUILD_TIMESTAMP}_${PROJECT_NAME}_${PROJECT_VERSION}${IDENTIFIERS_FROM_GIT}.zip
+  add_custom_target(
+    FirmwareRelease
+    
+    COMMAND
+      ${CMAKE_COMMAND} -E tar "cf" ${BUILD_TIMESTAMP}_${PROJECT_NAME}_${PROJECT_VERSION}${IDENTIFIERS_FROM_GIT}.zip
+      --format=zip #
+      flasher_args.json #
+      bootloader/bootloader.bin #
+      Firmware.bin #
+      partition_table/partition-table.bin #
+      ota_data_initial.bin #
+      nvs.bin #
+    DEPENDS all
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 
-      WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-      DEPENDS all
-    )
-
-    add_custom_target(
-      FirmwareReleaseTEST
-      
-      COMMAND
-        ${CMAKE_COMMAND} -E tar "cf" ${BUILD_TIMESTAMP}_${PROJECT_NAME}_${PROJECT_VERSION}${IDENTIFIERS_FROM_GIT}_${FILE_POSTFIX}.zip
-        --format=zip #
-        flasher_args.json #
-        bootloader/bootloader.bin #
-        Firmware.bin #
-        partition_table/partition-table.bin #
-        ota_data_initial.bin #
-        nvs.bin #
-      COMMAND ftp -u ftp://${FTP_USER}:${FTP_PASSWORD}@${FTP_SERVER_PATH}${BUILD_TIMESTAMP}_${PROJECT_NAME}_${PROJECT_VERSION}${IDENTIFIERS_FROM_GIT}_${FILE_POSTFIX}.zip ${BUILD_TIMESTAMP}_${PROJECT_NAME}_${PROJECT_VERSION}${IDENTIFIERS_FROM_GIT}_${FILE_POSTFIX}.zip
-      DEPENDS all
-      WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
-
-  else()
-
-    add_custom_target(
-      FirmwareRelease
-      
-      COMMAND
-        ${CMAKE_COMMAND} -E tar "cf" ${BUILD_TIMESTAMP}_${PROJECT_NAME}_${PROJECT_VERSION}${IDENTIFIERS_FROM_GIT}.zip
-        --format=zip #
-        flasher_args.json #
-        bootloader/bootloader.bin #
-        Firmware.bin #
-        partition_table/partition-table.bin #
-        ota_data_initial.bin #
-        nvs.bin #
-      DEPENDS all
-      WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
-
-    add_custom_target(
-      FirmwareReleaseTEST
-      
-      COMMAND
-        ${CMAKE_COMMAND} -E tar "cf" ${BUILD_TIMESTAMP}_${PROJECT_NAME}_${PROJECT_VERSION}${IDENTIFIERS_FROM_GIT}_${FILE_POSTFIX}.zip
-        --format=zip #
-        flasher_args.json #
-        bootloader/bootloader.bin #
-        Firmware.bin #
-        partition_table/partition-table.bin #
-        ota_data_initial.bin #
-        nvs.bin #
-      DEPENDS all
-      WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
-
-  endif()
+  add_custom_target(
+    FirmwareReleaseTEST
+    
+    COMMAND
+      ${CMAKE_COMMAND} -E tar "cf" ${BUILD_TIMESTAMP}_${PROJECT_NAME}_${PROJECT_VERSION}${IDENTIFIERS_FROM_GIT}_${FILE_POSTFIX}.zip
+      --format=zip #
+      flasher_args.json #
+      bootloader/bootloader.bin #
+      Firmware.bin #
+      partition_table/partition-table.bin #
+      ota_data_initial.bin #
+      nvs.bin #
+    DEPENDS all
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 
 endif()
 
